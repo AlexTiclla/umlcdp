@@ -41,8 +41,8 @@ A modern, web-based UML Class Diagram editor built with JointJS and Tailwind CSS
 
 1. Clone the repository:
    ```bash
-   git clone [repository-url]
-   cd [project-directory]
+   git clone [git@github.com:htmou/umlcdp.git]
+   cd [umlcdp]
    ```
 
 2. Install dependencies:
@@ -120,11 +120,3 @@ A modern, web-based UML Class Diagram editor built with JointJS and Tailwind CSS
 - `Ctrl + S`: Save diagram as PNG
 - `Delete`: Remove selected element(s)
 - `Esc`: Cancel current operation/close modal
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details. 
