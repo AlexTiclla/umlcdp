@@ -4,7 +4,6 @@ const Relationships = {
             source: { id: source.id },
             target: { id: target.id },
             attrs: {
-                '.marker-target': { d: 'M 10 0 L 0 5 L 10 10 z', fill: '#6366f1' },
                 '.connection': { stroke: '#6366f1', 'stroke-width': 1.5 }
             },
             labels: [
