@@ -1,116 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UML CD Editor</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="icon" type="image/png" href="favicon.png">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <!-- Custom styles -->
-    <link rel="stylesheet" href="css/styles.css">
-    <!-- JointJS dependencies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.4.0/backbone-min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jointjs/3.5.5/joint.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jointjs/3.5.5/joint.min.css">
-</head>
-<body class="bg-gray-100">
-    <div class="flex h-screen bg-white">
-        <div class="w-80 bg-white shadow-lg py-8 border-r border-gray-200 flex flex-col">
-            <div class="flex items-center gap-3 mb-8 px-6">
-                <svg class="w-7 h-7 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <rect x="4" y="3" width="7" height="8" rx="1"/>
-                    <rect x="13" y="13" width="7" height="8" rx="1"/>
-                    <line x1="7.5" y1="11" x2="7.5" y2="13"/>
-                    <line x1="7.5" y1="13" x2="16.5" y2="13"/>
-                    <line x1="4" y1="6" x2="11" y2="6"/>
-                    <line x1="13" y1="16" x2="20" y2="16"/>
-                    <circle cx="7.5" cy="13" r="1" fill="currentColor"/>
-                </svg>
-                <a href="javascript:void(0)" onclick="window.location.reload()" class="text-sm font-bold leading-tight hover:opacity-80 transition-opacity cursor-pointer">
-                    <span class="text-gray-400">UML</span>
-                    <span class="block text-gray-900">CLASS DIAGRAM</span>
-                    <span class="text-indigo-600">EDITOR</span>
-                </a>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>UML CD Editor</title>
+        <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+        <link rel="icon" type="image/png" href="favicon.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="css/styles.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.4.0/backbone-min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jointjs/3.5.5/joint.min.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/jointjs/3.5.5/joint.min.css"
+        />
+    </head>
+    <body class="bg-gray-100">
+        <div class="flex h-screen bg-white">
+            <div
+                class="w-80 bg-white shadow-lg py-8 border-r border-gray-200 flex flex-col"
+            >
+                <div class="flex items-center gap-3 mb-8 px-6">
+                    <svg
+                        class="w-7 h-7 text-indigo-600 flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <rect x="4" y="3" width="7" height="8" rx="1" />
+                        <rect x="13" y="13" width="7" height="8" rx="1" />
+                        <line x1="7.5" y1="11" x2="7.5" y2="13" />
+                        <line x1="7.5" y1="13" x2="16.5" y2="13" />
+                        <line x1="4" y1="6" x2="11" y2="6" />
+                        <line x1="13" y1="16" x2="20" y2="16" />
+                        <circle cx="7.5" cy="13" r="1" fill="currentColor" />
+                    </svg>
+                    <a
+                        href="javascript:void(0)"
+                        onclick="window.location.reload()"
+                        class="text-sm font-bold leading-tight hover:opacity-80 transition-opacity cursor-pointer"
+                    >
+                        <span class="text-gray-400">UML</span>
+                        <span class="block text-gray-900">CLASS DIAGRAM</span>
+                        <span class="text-indigo-600">EDITOR</span>
+                    </a>
+                </div>
+                <div class="flex-1 overflow-y-auto px-6">
+                    <div class="tool-section elements">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <rect
+                                    x="3"
+                                    y="3"
+                                    width="18"
+                                    height="18"
+                                    rx="2"
+                                    ry="2"
+                                ></rect>
+                                <line x1="3" y1="9" x2="21" y2="9"></line>
+                            </svg>
+                            Elements
+                        </h3>
+                        <div class="space-y-2">
+                            <button id="addClass" class="tool-btn">
+                                <span>Class</span>
+                            </button>
+                            <button id="addInterface" class="tool-btn">
+                                <span>Interface</span>
+                            </button>
+                            <button id="addAbstractClass" class="tool-btn">
+                                <span>Abstract Class</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="tool-section relationships">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M3 6h18"></path>
+                                <path d="M3 12h18"></path>
+                                <path d="M3 18h18"></path>
+                            </svg>
+                            Relationships
+                        </h3>
+                        <div class="space-y-2">
+                            <button id="addAssociation" class="tool-btn">
+                                <span>Association</span>
+                            </button>
+                            <button
+                                id="addNavigableAssociation"
+                                class="tool-btn"
+                            >
+                                <span>Navigable Association</span>
+                            </button>
+                            <button id="addInheritance" class="tool-btn">
+                                <span>Inheritance</span>
+                            </button>
+                            <button id="addImplementation" class="tool-btn">
+                                <span>Implementation</span>
+                            </button>
+                            <button id="addComposition" class="tool-btn">
+                                <span>Composition</span>
+                            </button>
+                            <button id="addAggregation" class="tool-btn">
+                                <span>Aggregation</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="tool-section code-generation">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <polyline points="16 18 22 12 16 6"></polyline>
+                                <polyline points="8 6 2 12 8 18"></polyline>
+                            </svg>
+                            Code Generation
+                        </h3>
+                        <div class="space-y-2">
+                            <button id="codeGenButton" class="tool-btn">
+                                <span>Generate Code</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="flex-1 overflow-y-auto px-6">
-                <div class="tool-section elements">
-                    <h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="3" y1="9" x2="21" y2="9"></line>
-                        </svg>
-                        Elements
-                    </h3>
-                    <div class="space-y-2">
-                        <button id="addClass" class="tool-btn">
-                            <span>Class</span>
-                        </button>
-                        <button id="addInterface" class="tool-btn">
-                            <span>Interface</span>
-                        </button>
-                        <button id="addAbstractClass" class="tool-btn">
-                            <span>Abstract Class</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="tool-section relationships">
-                    <h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 6h18"></path>
-                            <path d="M3 12h18"></path>
-                            <path d="M3 18h18"></path>
-                        </svg>
-                        Relationships
-                    </h3>
-                    <div class="space-y-2">
-                        <button id="addAssociation" class="tool-btn">
-                            <span>Association</span>
-                        </button>
-                        <button id="addNavigableAssociation" class="tool-btn">
-                            <span>Navigable Association</span>
-                        </button>
-                        <button id="addInheritance" class="tool-btn">
-                            <span>Inheritance</span>
-                        </button>
-                        <button id="addImplementation" class="tool-btn">
-                            <span>Implementation</span>
-                        </button>
-                        <button id="addComposition" class="tool-btn">
-                            <span>Composition</span>
-                        </button>
-                        <button id="addAggregation" class="tool-btn">
-                            <span>Aggregation</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="tool-section code-generation">
-                    <h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="16 18 22 12 16 6"></polyline>
-                            <polyline points="8 6 2 12 8 18"></polyline>
-                        </svg>
-                        Code Generation
-                    </h3>
-                    <div class="space-y-2">
-                        <button id="codeGenButton" class="tool-btn">
-                            <span>Generate Code</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <div id="paper" class="flex-1 bg-white"></div>
         </div>
-        <div id="paper" class="flex-1 bg-white"></div>
-    </div>
-    <script src="js/umlShapes.js"></script>
-    <script src="js/relationships.js"></script>
-    <script src="js/codeGenerator.js"></script>
-    <script src="js/main.js"></script>
-</body>
-</html> 
+        <script src="js/umlShapes.js"></script>
+        <script src="js/relationships.js"></script>
+        <script src="js/codeGenerator.js"></script>
+        <script src="js/main.js"></script>
+    </body>
+</html>
