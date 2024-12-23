@@ -41,8 +41,8 @@ A modern, web-based UML Class Diagram editor built with JointJS and Tailwind CSS
 
 1. Clone the repository:
    ```bash
-   git clone [git@github.com:htmou/umlcdp.git]
-   cd [umlcdp]
+   git clone git@github.com:htmou/umlcdp.git
+   cd umlcdp
    ```
 
 2. Install dependencies:
