@@ -95,6 +95,26 @@ const CodeGenerator = {
         // Add language-specific imports/headers
         code += this.generateHeader(language);
 
+        // Process inheritance relationships first to determine class order
+        const inheritanceMap = new Map();
+        relationships.forEach(rel => {
+            if (rel.get('type') === 'uml.Inheritance' || rel.get('type') === 'uml.Implementation') {
+                const source = rel.getSourceElement();
+                const target = rel.getTargetElement();
+                if (!inheritanceMap.has(source.id)) {
+                    inheritanceMap.set(source.id, {
+                        extends: [],
+                        implements: []
+                    });
+                }
+                if (rel.get('type') === 'uml.Inheritance') {
+                    inheritanceMap.get(source.id).extends.push(target.id);
+                } else {
+                    inheritanceMap.get(source.id).implements.push(target.id);
+                }
+            }
+        });
+
         // Generate code for each class/interface
         elements.forEach(element => {
             const name = element.get('name').replace(/<<interface>>\n|<<abstract>>\n/, '');
@@ -103,11 +123,16 @@ const CodeGenerator = {
             const attributes = element.get('attributes') || [];
             const methods = element.get('methods') || [];
 
-            // Find relationships for this class
-            const classRelationships = relationships.filter(r => 
-                r.getSourceElement().id === element.id || 
-                r.getTargetElement().id === element.id
-            );
+            // Find inheritance relationships for this class
+            const inheritance = inheritanceMap.get(element.id) || { extends: [], implements: [] };
+            const parentClasses = inheritance.extends.map(id => {
+                const parent = elements.find(e => e.id === id);
+                return parent.get('name').replace(/<<interface>>\n|<<abstract>>\n/, '');
+            });
+            const interfaces = inheritance.implements.map(id => {
+                const iface = elements.find(e => e.id === id);
+                return iface.get('name').replace(/<<interface>>\n|<<abstract>>\n/, '');
+            });
 
             code += this.generateClass(
                 name,
@@ -115,9 +140,11 @@ const CodeGenerator = {
                 isAbstract,
                 attributes,
                 methods,
-                classRelationships,
+                relationships,
                 language,
-                elements
+                elements,
+                parentClasses,
+                interfaces
             );
             code += '\n\n';
         });
@@ -138,14 +165,14 @@ const CodeGenerator = {
         }
     },
 
-    generateClass: function(name, isInterface, isAbstract, attributes, methods, relationships, language, elements) {
+    generateClass: function(name, isInterface, isAbstract, attributes, methods, relationships, language, elements, parentClasses, interfaces) {
         switch (language) {
             case 'java':
-                return this.generateJavaClass(name, isInterface, isAbstract, attributes, methods, relationships, elements);
+                return this.generateJavaClass(name, isInterface, isAbstract, attributes, methods, relationships, elements, parentClasses, interfaces);
             case 'python':
-                return this.generatePythonClass(name, isInterface, isAbstract, attributes, methods, relationships, elements);
+                return this.generatePythonClass(name, isInterface, isAbstract, attributes, methods, relationships, elements, parentClasses, interfaces);
             case 'php':
-                return this.generatePhpClass(name, isInterface, isAbstract, attributes, methods, relationships, elements);
+                return this.generatePhpClass(name, isInterface, isAbstract, attributes, methods, relationships, elements, parentClasses, interfaces);
             default:
                 return '';
         }
@@ -256,7 +283,7 @@ const CodeGenerator = {
         return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`).replace(/^_/, '');
     },
 
-    generateJavaClass: function(name, isInterface, isAbstract, attributes, methods, relationships, elements) {
+    generateJavaClass: function(name, isInterface, isAbstract, attributes, methods, relationships, elements, parentClasses, interfaces) {
         let code = '';
         
         // Generate class declaration
@@ -266,29 +293,12 @@ const CodeGenerator = {
             code += `public ${isAbstract ? 'abstract ' : ''}class ${name} `;
         }
 
-        // Add inheritance and implementation
-        const currentElement = elements.find(e => e.get('name').includes(name));
-        const inheritance = relationships.filter(r => {
-            // Check both source and target for inheritance relationships
-            return (r.getSourceElement().id === currentElement.id || r.getTargetElement().id === currentElement.id) &&
-                   (r.get('type') === 'uml.Inheritance' || r.get('type') === 'uml.Implementation');
-        });
-
-        // Find parent classes (where current class is the source)
-        const extends_ = inheritance
-            .filter(r => r.get('type') === 'uml.Inheritance' && r.getSourceElement().id === currentElement.id)
-            .map(r => r.getTargetElement().get('name').replace(/<<interface>>\n|<<abstract>>\n/, ''));
-
-        // Find interfaces to implement (where current class is the source)
-        const implements_ = inheritance
-            .filter(r => r.get('type') === 'uml.Implementation' && r.getSourceElement().id === currentElement.id)
-            .map(r => r.getTargetElement().get('name').replace(/<<interface>>\n|<<abstract>>\n/, ''));
-
-        if (extends_.length > 0) {
-            code += `extends ${extends_[0]} `;  // Java only supports single inheritance
+        // Add inheritance
+        if (parentClasses.length > 0) {
+            code += `extends ${parentClasses[0]} `; // Java only supports single inheritance
         }
-        if (implements_.length > 0) {
-            code += `implements ${implements_.join(', ')} `;
+        if (interfaces.length > 0) {
+            code += `implements ${interfaces.join(', ')} `;
         }
 
         code += '{\n';
@@ -338,7 +348,7 @@ const CodeGenerator = {
         return code;
     },
 
-    generatePythonClass: function(name, isInterface, isAbstract, attributes, methods, relationships, elements) {
+    generatePythonClass: function(name, isInterface, isAbstract, attributes, methods, relationships, elements, parentClasses, interfaces) {
         let code = '';
         
         // Add imports for abstract base classes and typing
@@ -350,25 +360,14 @@ const CodeGenerator = {
         // Generate class declaration
         code += `class ${name}`;
 
-        // Add inheritance and implementation
-        const currentElement = elements.find(e => e.get('name').includes(name));
-        const inheritance = relationships.filter(r => {
-            // Check both source and target for inheritance relationships
-            return (r.getSourceElement().id === currentElement.id || r.getTargetElement().id === currentElement.id) &&
-                   (r.get('type') === 'uml.Inheritance' || r.get('type') === 'uml.Implementation');
-        });
-
         // In Python, both inheritance and implementation are handled through inheritance
-        const parents = inheritance
-            .filter(r => r.getSourceElement().id === currentElement.id)
-            .map(r => r.getTargetElement().get('name').replace(/<<interface>>\n|<<abstract>>\n/, ''));
-
+        const allParents = [...parentClasses, ...interfaces];
         if (isInterface || isAbstract) {
-            parents.push('ABC');
+            allParents.push('ABC');
         }
 
-        if (parents.length > 0) {
-            code += `(${parents.join(', ')})`;
+        if (allParents.length > 0) {
+            code += `(${allParents.join(', ')})`;
         }
 
         code += ':\n';
@@ -431,7 +430,7 @@ const CodeGenerator = {
         return code;
     },
 
-    generatePhpClass: function(name, isInterface, isAbstract, attributes, methods, relationships, elements) {
+    generatePhpClass: function(name, isInterface, isAbstract, attributes, methods, relationships, elements, parentClasses, interfaces) {
         let code = '';
         
         // Generate class declaration
@@ -441,29 +440,12 @@ const CodeGenerator = {
             code += `${isAbstract ? 'abstract ' : ''}class ${name} `;
         }
 
-        // Add inheritance and implementation
-        const currentElement = elements.find(e => e.get('name').includes(name));
-        const inheritance = relationships.filter(r => {
-            // Check both source and target for inheritance relationships
-            return (r.getSourceElement().id === currentElement.id || r.getTargetElement().id === currentElement.id) &&
-                   (r.get('type') === 'uml.Inheritance' || r.get('type') === 'uml.Implementation');
-        });
-
-        // Find parent class (where current class is the source)
-        const extends_ = inheritance
-            .filter(r => r.get('type') === 'uml.Inheritance' && r.getSourceElement().id === currentElement.id)
-            .map(r => r.getTargetElement().get('name').replace(/<<interface>>\n|<<abstract>>\n/, ''));
-
-        // Find interfaces to implement (where current class is the source)
-        const implements_ = inheritance
-            .filter(r => r.get('type') === 'uml.Implementation' && r.getSourceElement().id === currentElement.id)
-            .map(r => r.getTargetElement().get('name').replace(/<<interface>>\n|<<abstract>>\n/, ''));
-
-        if (extends_.length > 0) {
-            code += `extends ${extends_[0]} `; // PHP only supports single inheritance
+        // Add inheritance
+        if (parentClasses.length > 0) {
+            code += `extends ${parentClasses[0]} `; // PHP only supports single inheritance
         }
-        if (implements_.length > 0) {
-            code += `implements ${implements_.join(', ')} `;
+        if (interfaces.length > 0) {
+            code += `implements ${interfaces.join(', ')} `;
         }
 
         code += '\n{\n';

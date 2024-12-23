@@ -75,7 +75,8 @@ const Relationships = {
             attrs: {
                 '.marker-target': { d: 'M 20 0 L 0 10 L 20 20 z', fill: '#fff' },
                 '.connection': { stroke: '#000', 'stroke-width': 1 }
-            }
+            },
+            type: 'uml.Inheritance'
         });
     },
 
@@ -86,7 +87,8 @@ const Relationships = {
             attrs: {
                 '.marker-target': { d: 'M 20 0 L 0 10 L 20 20 z', fill: '#fff' },
                 '.connection': { stroke: '#000', 'stroke-width': 1, 'stroke-dasharray': '5,5' }
-            }
+            },
+            type: 'uml.Implementation'
         });
     },
 
