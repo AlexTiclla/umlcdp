@@ -8,7 +8,7 @@
     "watch": "tailwindcss -i ./css/src/styles.css -o ./css/styles.css --watch"
   },
   "keywords": [],
-  "author": "",
+  "author": "Hassan AIT MOUSSA",
   "license": "ISC",
   "devDependencies": {
     "autoprefixer": "^10.4.16",
