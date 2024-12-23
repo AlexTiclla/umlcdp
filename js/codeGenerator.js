@@ -227,7 +227,11 @@ const CodeGenerator = {
             processedRelationships.add(rel.id);
 
             const relType = rel.get('type');
-            if (relType === 'uml.Association' || relType === 'uml.Composition' || relType === 'uml.Aggregation') {
+            const isNavigable = rel.get('type') === 'uml.NavigableAssociation' || 
+                              (relType === 'uml.Association' && rel.attr('.marker-target'));
+            
+            if (relType === 'uml.Association' || relType === 'uml.NavigableAssociation' || 
+                relType === 'uml.Composition' || relType === 'uml.Aggregation') {
                 const source = rel.getSourceElement();
                 const target = rel.getTargetElement();
                 const labels = rel.labels() || [];
@@ -237,7 +241,7 @@ const CodeGenerator = {
                 const targetMulti = labels[1]?.attrs?.text?.text || '1';
 
                 // Process based on which end of the relationship this element is
-                if (source.id === element.id) {
+                if (source.id === element.id && isNavigable) {
                     const targetName = target.get('name').replace(/<<interface>>\n|<<abstract>>\n/, '');
                     const collectionType = this.getCollectionType(language, targetMulti);
                     
