@@ -145,6 +145,23 @@
     @apply text-white font-semibold;
   }
 
+  #addNavigableAssociation {
+    @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
+           hover:text-white hover:border-transparent;
+  }
+
+  #addNavigableAssociation span {
+    @apply group-hover:text-white;
+  }
+
+  #addNavigableAssociation.active {
+    @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
+  }
+
+  #addNavigableAssociation.active span {
+    @apply text-white font-semibold;
+  }
+
   #addInheritance {
     @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
            hover:text-white hover:border-transparent;

@@ -569,6 +569,7 @@ function initializeTools() {
 
     // Relationship tools
     document.getElementById('addAssociation').addEventListener('click', () => setCurrentTool('addAssociation'));
+    document.getElementById('addNavigableAssociation').addEventListener('click', () => setCurrentTool('addNavigableAssociation'));
     document.getElementById('addInheritance').addEventListener('click', () => setCurrentTool('addInheritance'));
     document.getElementById('addImplementation').addEventListener('click', () => setCurrentTool('addImplementation'));
     document.getElementById('addComposition').addEventListener('click', () => setCurrentTool('addComposition'));
@@ -599,6 +600,9 @@ function createRelationship(tool, source, target) {
     switch (tool) {
         case 'addAssociation':
             relationship = Relationships.createAssociation(source, target);
+            break;
+        case 'addNavigableAssociation':
+            relationship = Relationships.createNavigableAssociation(source, target);
             break;
         case 'addInheritance':
             relationship = Relationships.createInheritance(source, target);

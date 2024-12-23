@@ -33,6 +33,41 @@ const Relationships = {
         });
     },
 
+    createNavigableAssociation: function(source, target) {
+        return new joint.dia.Link({
+            source: { id: source.id },
+            target: { id: target.id },
+            attrs: {
+                '.marker-target': { d: 'M 10 0 L 0 5 L 10 10 z', fill: '#6366f1' },
+                '.connection': { stroke: '#6366f1', 'stroke-width': 1.5 }
+            },
+            labels: [
+                {
+                    position: 0.1,
+                    attrs: { 
+                        text: { 
+                            text: '1', 
+                            fill: '#475569',
+                            'font-family': 'JetBrains Mono',
+                            'font-size': 11
+                        } 
+                    }
+                },
+                {
+                    position: 0.9,
+                    attrs: { 
+                        text: { 
+                            text: '1', 
+                            fill: '#475569',
+                            'font-family': 'JetBrains Mono',
+                            'font-size': 11
+                        } 
+                    }
+                }
+            ]
+        });
+    },
+
     createInheritance: function(source, target) {
         return new joint.dia.Link({
             source: { id: source.id },

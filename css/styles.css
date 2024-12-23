@@ -820,6 +820,39 @@ video {
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
 
+#addNavigableAssociation:hover {
+  border-color: transparent;
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+  --tw-gradient-from: #6366f1 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(99 102 241 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  --tw-gradient-to: #4f46e5 var(--tw-gradient-to-position);
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+}
+
+.group:hover #addNavigableAssociation span {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+}
+
+#addNavigableAssociation.active {
+  border-color: transparent;
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+  --tw-gradient-from: #4f46e5 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(79 70 229 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  --tw-gradient-to: #4338ca var(--tw-gradient-to-position);
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+}
+
+#addNavigableAssociation.active span {
+  font-weight: 600;
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+}
+
 #addInheritance:hover {
   border-color: transparent;
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
