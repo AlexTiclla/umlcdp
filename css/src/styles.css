@@ -251,8 +251,10 @@
   }
 
   /* Highlight style for selected elements */
-  .highlighted {
-    @apply ring-2 ring-indigo-500 ring-offset-2;
+  .joint-highlight-stroke {
+    stroke: #818cf8 !important;
+    stroke-width: 3px;
+    filter: drop-shadow(0 0 2px rgba(99, 102, 241, 0.3));
   }
 
   .relationship-source-highlight {

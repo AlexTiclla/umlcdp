@@ -2,6 +2,7 @@ let graph, paper;
 let currentTool = null;
 let sourceElement = null;
 let lastHighlightedView = null;
+let selectedElements = [];
 
 function clearHighlight() {
     if (Array.isArray(lastHighlightedView)) {
@@ -29,6 +30,7 @@ function clearHighlight() {
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize JointJS graph and paper
     graph = new joint.dia.Graph();
+
     paper = new joint.dia.Paper({
         el: document.getElementById('paper'),
         model: graph,
@@ -159,34 +161,51 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add keyboard event listeners
     document.addEventListener('keydown', function(e) {
         // Delete key handler
-        if (e.key === 'Delete') {
-            if (Array.isArray(lastHighlightedView)) {
-                // Delete all selected elements
-                lastHighlightedView.forEach(view => {
-                    if (view && view.model) {
-                        view.model.remove();
-                    }
-                });
-                lastHighlightedView = null;
-                showMessage('Deleted selected elements', 'info');
-            } else if (lastHighlightedView) {
-                // Delete single selected element
-                lastHighlightedView.model.remove();
-                lastHighlightedView = null;
-                showMessage('Deleted element', 'info');
-            }
+        if (e.key === 'Delete' && selectedElements.length > 0) {
+            selectedElements.forEach(cellView => {
+                cellView.model.remove();
+            });
+            selectedElements = [];
+            showMessage('Elements deleted', 'info');
+            return;
         }
 
         // Select all (Ctrl+A or Cmd+A)
         if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
             e.preventDefault(); // Prevent browser's select all
-            selectAllElements();
+            // Clear current selection
+            selectedElements.forEach(cellView => {
+                cellView.unhighlight();
+            });
+            selectedElements = [];
+
+            // Select all elements
+            const elements = graph.getCells();
+            elements.forEach(cell => {
+                const cellView = paper.findViewByModel(cell);
+                if (cellView) {
+                    cellView.highlight();
+                    selectedElements.push(cellView);
+                }
+            });
+            showMessage('All elements selected', 'info');
         }
 
         // Save screenshot (Ctrl+S or Cmd+S)
         if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault(); // Prevent browser's save dialog
+            e.preventDefault();
             saveScreenshot();
+        }
+
+        // Undo (Ctrl+Z or Cmd+Z)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+            e.preventDefault();
+            if (history.canUndo()) {
+                history.undo();
+                showMessage('Undo successful', 'info');
+            } else {
+                showMessage('Nothing to undo', 'info');
+            }
         }
     });
 
@@ -208,12 +227,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Paper event handlers
     paper.on('cell:pointerclick', function(cellView, evt) {
-        // Handle delete tool
-        if (currentTool === 'delete') {
-            cellView.model.remove();
-            return;
-        }
-
         // Handle relationship creation
         if (currentTool && currentTool.startsWith('add')) {
             // Only proceed if clicking on a class/interface
@@ -267,8 +280,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 showMessage('Relationship created', 'success');
             }
         } else {
-            // For non-relationship clicks, just clear any existing highlights
-            clearHighlight();
+            // Handle element selection
+            if (!evt.ctrlKey && !evt.metaKey) {
+                // Clear previous selection if not holding Ctrl/Cmd
+                selectedElements.forEach(view => {
+                    view.unhighlight();
+                });
+                selectedElements = [];
+            }
+            
+            // Add to selection
+            selectedElements.push(cellView);
+            cellView.highlight();
         }
     });
 
@@ -278,6 +301,12 @@ document.addEventListener('DOMContentLoaded', function() {
         sourceElement = null;
         currentTool = null;
         updateToolbarState();
+
+        // Clear selection
+        selectedElements.forEach(cellView => {
+            cellView.unhighlight();
+        });
+        selectedElements = [];
 
         // Create new elements if a creation tool is selected
         if (currentTool === 'addClass') {
