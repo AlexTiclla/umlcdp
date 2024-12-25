@@ -3,413 +3,425 @@
 @tailwind utilities;
 
 @layer components {
-  .container {
-    @apply flex h-screen m-0 p-0;
-  }
+    .container {
+        @apply flex h-screen m-0 p-0;
+    }
 
-  .toolbar {
-    @apply w-[200px] bg-gray-50 p-5 border-r border-gray-200;
-  }
+    .toolbar {
+        @apply w-[200px] bg-gray-50 p-5 border-r border-gray-200;
+    }
 
-  .tool-section {
-    @apply w-full mb-10;
-  }
+    .tool-section {
+        @apply w-full mb-10;
+    }
 
-  .tool-section h3 {
-    @apply text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200
+    .tool-section h3 {
+        @apply text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200
            flex items-center gap-2;
-  }
+    }
 
-  .tool-section h3 svg {
-    @apply w-4 h-4 text-indigo-500;
-  }
+    .tool-section h3 svg {
+        @apply w-4 h-4 text-indigo-500;
+    }
 
-  /* Add decorative line after h3 */
-  .tool-section h3::after {
-    content: '';
-    @apply absolute bottom-0 left-0 w-16 h-0.5 bg-indigo-500 rounded-full;
-  }
+    /* Add decorative line after h3 */
+    .tool-section h3::after {
+        content: "";
+        @apply absolute bottom-0 left-0 w-16 h-0.5 bg-indigo-500 rounded-full;
+    }
 
-  /* Specific styles for each section title */
-  .tool-section.elements h3 svg {
-    @apply text-blue-500;
-  }
+    /* Specific styles for each section title */
+    .tool-section.elements h3 svg {
+        @apply text-blue-500;
+    }
 
-  .tool-section.relationships h3 svg {
-    @apply text-emerald-500;
-  }
+    .tool-section.relationships h3 svg {
+        @apply text-emerald-500;
+    }
 
-  .tool-section.code-generation h3 svg {
-    @apply text-purple-500;
-  }
+    .tool-section.code-generation h3 svg {
+        @apply text-purple-500;
+    }
 
-  .tool-section.elements h3::after {
-    @apply bg-blue-500;
-  }
+    .tool-section.elements h3::after {
+        @apply bg-blue-500;
+    }
 
-  .tool-section.relationships h3::after {
-    @apply bg-emerald-500;
-  }
+    .tool-section.relationships h3::after {
+        @apply bg-emerald-500;
+    }
 
-  .tool-section.code-generation h3::after {
-    @apply bg-purple-500;
-  }
+    .tool-section.code-generation h3::after {
+        @apply bg-purple-500;
+    }
 
-  .tool-btn {
-    @apply w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-700 
+    .tool-btn {
+        @apply w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-700
            border border-gray-200 transition-all duration-200
-           hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
-           hover:text-white hover:border-transparent hover:shadow-md 
+           hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600
+           hover:text-white hover:border-transparent hover:shadow-md
            hover:scale-[1.02];
-  }
+    }
 
-  .tool-btn span {
-    @apply text-gray-700 transition-colors duration-200;
-  }
+    .tool-btn span {
+        @apply text-gray-700 transition-colors duration-200;
+    }
 
-  .tool-btn:hover span {
-    @apply text-white;
-  }
+    .tool-btn:hover span {
+        @apply text-white;
+    }
 
-  .tool-btn.dragging {
-    @apply opacity-50 cursor-grabbing;
-  }
+    .tool-btn.dragging {
+        @apply opacity-50 cursor-grabbing;
+    }
 
-  /* Elements section */
-  #addClass {
-    @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
+    /* Elements section */
+    #addClass {
+        @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600
            hover:text-white hover:border-transparent;
-  }
+    }
 
-  #addClass span {
-    @apply group-hover:text-white;
-  }
+    #addClass span {
+        @apply group-hover:text-white;
+    }
 
-  #addClass.active {
-    @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
-  }
+    #addClass.active {
+        @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
+    }
 
-  #addClass.active span {
-    @apply text-white font-semibold;
-  }
+    #addClass.active span {
+        @apply text-white font-semibold;
+    }
 
-  #addInterface {
-    @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
+    #addInterface {
+        @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600
            hover:text-white hover:border-transparent;
-  }
+    }
 
-  #addInterface span {
-    @apply group-hover:text-white;
-  }
+    #addInterface span {
+        @apply group-hover:text-white;
+    }
 
-  #addInterface.active {
-    @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
-  }
+    #addInterface.active {
+        @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
+    }
 
-  #addInterface.active span {
-    @apply text-white font-semibold;
-  }
+    #addInterface.active span {
+        @apply text-white font-semibold;
+    }
 
-  #addAbstractClass {
-    @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
+    #addAbstractClass {
+        @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600
            hover:text-white hover:border-transparent;
-  }
+    }
 
-  #addAbstractClass span {
-    @apply group-hover:text-white;
-  }
+    #addAbstractClass span {
+        @apply group-hover:text-white;
+    }
 
-  #addAbstractClass.active {
-    @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
-  }
+    #addAbstractClass.active {
+        @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
+    }
 
-  #addAbstractClass.active span {
-    @apply text-white font-semibold;
-  }
+    #addAbstractClass.active span {
+        @apply text-white font-semibold;
+    }
 
-  /* Relationships section */
-  #addAssociation {
-    @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
+    /* Relationships section */
+    #addAssociation {
+        @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600
            hover:text-white hover:border-transparent;
-  }
+    }
 
-  #addAssociation span {
-    @apply group-hover:text-white;
-  }
+    #addAssociation span {
+        @apply group-hover:text-white;
+    }
 
-  #addAssociation.active {
-    @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
-  }
+    #addAssociation.active {
+        @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
+    }
 
-  #addAssociation.active span {
-    @apply text-white font-semibold;
-  }
+    #addAssociation.active span {
+        @apply text-white font-semibold;
+    }
 
-  #addNavigableAssociation {
-    @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
+    #addNavigableAssociation {
+        @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600
            hover:text-white hover:border-transparent;
-  }
+    }
 
-  #addNavigableAssociation span {
-    @apply group-hover:text-white;
-  }
+    #addNavigableAssociation span {
+        @apply group-hover:text-white;
+    }
 
-  #addNavigableAssociation.active {
-    @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
-  }
+    #addNavigableAssociation.active {
+        @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
+    }
 
-  #addNavigableAssociation.active span {
-    @apply text-white font-semibold;
-  }
+    #addNavigableAssociation.active span {
+        @apply text-white font-semibold;
+    }
 
-  #addInheritance {
-    @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
+    #addInheritance {
+        @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600
            hover:text-white hover:border-transparent;
-  }
+    }
 
-  #addInheritance span {
-    @apply group-hover:text-white;
-  }
+    #addInheritance span {
+        @apply group-hover:text-white;
+    }
 
-  #addInheritance.active {
-    @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
-  }
+    #addInheritance.active {
+        @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
+    }
 
-  #addInheritance.active span {
-    @apply text-white font-semibold;
-  }
+    #addInheritance.active span {
+        @apply text-white font-semibold;
+    }
 
-  #addImplementation {
-    @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
+    #addImplementation {
+        @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600
            hover:text-white hover:border-transparent;
-  }
+    }
 
-  #addImplementation span {
-    @apply group-hover:text-white;
-  }
+    #addImplementation span {
+        @apply group-hover:text-white;
+    }
 
-  #addImplementation.active {
-    @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
-  }
+    #addImplementation.active {
+        @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
+    }
 
-  #addImplementation.active span {
-    @apply text-white font-semibold;
-  }
+    #addImplementation.active span {
+        @apply text-white font-semibold;
+    }
 
-  #addComposition {
-    @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
+    #addComposition {
+        @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600
            hover:text-white hover:border-transparent;
-  }
+    }
 
-  #addComposition span {
-    @apply group-hover:text-white;
-  }
+    #addComposition span {
+        @apply group-hover:text-white;
+    }
 
-  #addComposition.active {
-    @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
-  }
+    #addComposition.active {
+        @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
+    }
 
-  #addComposition.active span {
-    @apply text-white font-semibold;
-  }
+    #addComposition.active span {
+        @apply text-white font-semibold;
+    }
 
-  #addAggregation {
-    @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
+    #addAggregation {
+        @apply hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600
            hover:text-white hover:border-transparent;
-  }
+    }
 
-  #addAggregation span {
-    @apply group-hover:text-white;
-  }
+    #addAggregation span {
+        @apply group-hover:text-white;
+    }
 
-  #addAggregation.active {
-    @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
-  }
+    #addAggregation.active {
+        @apply bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border-transparent;
+    }
 
-  #addAggregation.active span {
-    @apply text-white font-semibold;
-  }
+    #addAggregation.active span {
+        @apply text-white font-semibold;
+    }
 
-  /* Active button indicator */
-  .tool-btn.active::before {
-    content: '';
-    @apply absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8
+    /* Active button indicator */
+    .tool-btn.active::before {
+        content: "";
+        @apply absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8
            rounded-r-full bg-current opacity-20;
-  }
+    }
 
-  /* Paper styles */
-  .paper {
-    @apply flex-1 bg-white overflow-auto;
-  }
+    /* Paper styles */
+    .paper {
+        @apply flex-1 bg-white overflow-auto;
+    }
 
-  .joint-element {
-    @apply cursor-pointer;
-  }
+    .joint-element {
+        @apply cursor-pointer;
+    }
 
-  .joint-paper {
-    @apply border border-gray-200;
-  }
+    .joint-paper {
+        @apply border border-gray-200;
+    }
 
-  /* Highlight style for selected elements */
-  .joint-highlight-stroke {
-    stroke: #818cf8 !important;
-    stroke-width: 3px;
-    filter: drop-shadow(0 0 2px rgba(99, 102, 241, 0.3));
-  }
+    /* Highlight style for selected elements */
+    .joint-highlight-stroke {
+        stroke: #818cf8 !important;
+        stroke-width: 3px;
+        filter: drop-shadow(0 0 2px rgba(99, 102, 241, 0.3));
+    }
 
-  .relationship-source-highlight {
-    @apply ring-2 ring-emerald-500 ring-offset-2 ring-offset-white;
-  }
+    .relationship-source-highlight {
+        @apply ring-2 ring-emerald-500 ring-offset-2 ring-offset-white;
+    }
 
-  .relationship-source-highlight::after {
-    content: 'Select target';
-    @apply absolute -top-7 left-1/2 transform -translate-x-1/2
+    .relationship-source-highlight::after {
+        content: "Select target";
+        @apply absolute -top-7 left-1/2 transform -translate-x-1/2
            bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-medium
            whitespace-nowrap border border-emerald-200;
-  }
+    }
 
-  .relationship-source-highlight::before {
-    content: '';
-    @apply absolute inset-0 rounded-lg border-2 border-emerald-500
+    .relationship-source-highlight::before {
+        content: "";
+        @apply absolute inset-0 rounded-lg border-2 border-emerald-500
            animate-pulse;
-  }
+    }
 
-  /* Modal styles */
-  .modal {
-    @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+    /* Modal styles */
+    .modal {
+        @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
            bg-white rounded-lg shadow-xl p-6 max-w-md w-full z-50;
-  }
+    }
 
-  .modal-overlay {
-    @apply fixed inset-0 bg-black bg-opacity-50 z-40;
-  }
+    .modal-overlay {
+        @apply fixed inset-0 bg-black bg-opacity-50 z-40;
+    }
 
-  .modal-title {
-    @apply text-lg font-semibold text-gray-900 mb-4 font-sans;
-  }
+    .modal-title {
+        @apply text-lg font-semibold text-gray-900 mb-4 font-sans;
+    }
 
-  .modal-input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm font-mono;
-  }
+    .modal-input {
+        @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm font-mono;
+    }
 
-  .modal-textarea {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm font-mono;
-  }
+    .modal-textarea {
+        @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm font-mono;
+    }
 
-  .modal-button {
-    @apply px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 
+    .modal-button {
+        @apply px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2
            focus:ring-offset-2 transition-colors duration-150 ease-in-out;
-  }
+    }
 
-  .modal-button-primary {
-    @apply bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500;
-  }
+    .modal-button-primary {
+        @apply bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500;
+    }
 
-  .modal-button-secondary {
-    @apply bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-500;
-  }
+    .modal-button-secondary {
+        @apply bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-500;
+    }
 
-  /* Highlight styles */
-  .joint-highlight-stroke {
-    @apply pointer-events-none;
-  }
+    /* Highlight styles */
+    .joint-highlight-stroke {
+        @apply pointer-events-none;
+    }
 
-  .relationship-label {
-    @apply absolute -top-6 left-1/2 transform -translate-x-1/2 bg-green-100 text-green-800 
+    .relationship-label {
+        @apply absolute -top-6 left-1/2 transform -translate-x-1/2 bg-green-100 text-green-800
            text-xs font-medium px-2 py-1 rounded-md shadow-sm whitespace-nowrap;
-  }
-
-  /* Message popup animation */
-  @keyframes fadeInOut {
-    0% { opacity: 0; transform: translateY(20px); }
-    10% { opacity: 1; transform: translateY(0); }
-    90% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-20px); }
-  }
-
-  .message-popup {
-    animation: fadeInOut 2s ease-in-out;
-  }
-
-  /* Drag and drop styles */
-  #paper.dragover {
-    @apply ring-2 ring-indigo-300 ring-opacity-50;
-  }
-
-  /* Relationship source highlight */
-  .joint-highlight-stroke[data-type="relationship-source"] {
-    @apply animate-pulse;
-  }
-
-  /* Pulse animation for relationship source */
-  @keyframes pulse {
-    0% {
-      stroke-width: 3;
-      stroke-opacity: 1;
     }
-    50% {
-      stroke-width: 4;
-      stroke-opacity: 0.7;
-    }
-    100% {
-      stroke-width: 3;
-      stroke-opacity: 1;
-    }
-  }
 
-  .joint-highlight-stroke {
-    animation: pulse 1.5s ease-in-out infinite;
-  }
+    /* Message popup animation */
+    @keyframes fadeInOut {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        10% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        90% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+    }
 
-  /* Code generation button */
-  #codeGenButton.tool-btn {
-    @apply relative overflow-hidden transition-all duration-200 border border-gray-200 
-           hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600 
-           hover:text-white hover:border-transparent hover:shadow-md 
+    .message-popup {
+        animation: fadeInOut 2s ease-in-out;
+    }
+
+    /* Drag and drop styles */
+    #paper.dragover {
+        @apply ring-2 ring-indigo-300 ring-opacity-50;
+    }
+
+    /* Relationship source highlight */
+    .joint-highlight-stroke[data-type="relationship-source"] {
+        @apply animate-pulse;
+    }
+
+    /* Pulse animation for relationship source */
+    @keyframes pulse {
+        0% {
+            stroke-width: 3;
+            stroke-opacity: 1;
+        }
+        50% {
+            stroke-width: 4;
+            stroke-opacity: 0.7;
+        }
+        100% {
+            stroke-width: 3;
+            stroke-opacity: 1;
+        }
+    }
+
+    .joint-highlight-stroke {
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* Code generation button */
+    #codeGenButton.tool-btn {
+        @apply relative overflow-hidden transition-all duration-200 border border-gray-200
+           hover:bg-gradient-to-r hover:from-indigo-500 hover:to-indigo-600
+           hover:text-white hover:border-transparent hover:shadow-md
            hover:scale-[1.02];
-  }
+    }
 
-  #codeGenButton.tool-btn span {
-    @apply text-gray-700 transition-colors duration-200;
-  }
+    #codeGenButton.tool-btn span {
+        @apply text-gray-700 transition-colors duration-200;
+    }
 
-  #codeGenButton.tool-btn:hover span {
-    @apply text-white;
-  }
+    #codeGenButton.tool-btn:hover span {
+        @apply text-white;
+    }
 
-  /* Language selection buttons */
-  .language-btn {
-    @apply relative overflow-hidden transition-all duration-200;
-  }
+    /* Language selection buttons */
+    .language-btn {
+        @apply relative overflow-hidden transition-all duration-200;
+    }
 
-  .language-btn:hover {
-    @apply transform scale-[1.02] shadow-md;
-  }
+    .language-btn:hover {
+        @apply transform scale-[1.02] shadow-md;
+    }
 
-  .language-btn:active {
-    @apply transform scale-[0.98];
-  }
+    .language-btn:active {
+        @apply transform scale-[0.98];
+    }
 
-  .language-btn.java:hover {
-    @apply bg-gradient-to-r from-red-500 to-red-600 border-transparent text-white;
-  }
+    .language-btn.java:hover {
+        @apply bg-gradient-to-r from-red-500 to-red-600 border-transparent text-white;
+    }
 
-  .language-btn.python:hover {
-    @apply bg-gradient-to-r from-green-500 to-green-600 border-transparent text-white;
-  }
+    .language-btn.python:hover {
+        @apply bg-gradient-to-r from-green-500 to-green-600 border-transparent text-white;
+    }
 
-  .language-btn.php:hover {
-    @apply bg-gradient-to-r from-blue-500 to-blue-600 border-transparent text-white;
-  }
+    .language-btn.php:hover {
+        @apply bg-gradient-to-r from-blue-500 to-blue-600 border-transparent text-white;
+    }
 
-  /* Ensure sidebar content fits without scrolling */
-  .sidebar {
-    @apply flex flex-col h-full;
-    max-height: 100vh;
-  }
+    /* Ensure sidebar content fits without scrolling */
+    .sidebar {
+        @apply flex flex-col h-full;
+        max-height: 100vh;
+    }
 
-  .sidebar-content {
-    @apply flex-1 overflow-y-auto;
-    height: calc(100vh - 5rem); /* Subtract header height */
-  }
+    .sidebar-content {
+        @apply flex-1 overflow-y-auto;
+        height: calc(100vh - 5rem); /* Subtract header height */
+    }
 }
