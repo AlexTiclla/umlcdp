@@ -2,6 +2,8 @@
 
 A modern, web-based UML Class Diagram editor built with JointJS and Tailwind CSS. Create, edit, and generate code from your UML class diagrams with an intuitive user interface.
 
+**[Live Demo: Quickly explore and test it online](https://hassantmoussa.com/umlcdp/)**
+
 ## Features
 
 - **Element Creation**
