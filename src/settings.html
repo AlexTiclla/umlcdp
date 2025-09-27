@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - UML Class Diagram Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../js/auth-manager.js"></script>
+    <script src="../js/api.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-4xl mx-auto py-8 px-4">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center gap-3 mb-4">
+                <a href="../index.html" class="text-indigo-600 hover:text-indigo-800 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m0 0l8 8a2 2 0 01-8 8z"></path>
+                    </svg>
+                </a>
+                <h1 class="text-2xl font-bold text-gray-900">Configuración</h1>
+            </div>
+            <p class="text-gray-600">Personaliza tu experiencia en el editor UML.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Sidebar de Configuración -->
+            <div class="lg:col-span-1">
+                <nav class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <ul class="space-y-2">
+                        <li>
+                            <button class="config-tab-btn active w-full text-left px-3 py-2 text-sm font-medium rounded-md transition-colors" data-tab="general">
+                                General
+                            </button>
+                        </li>
+                        <li>
+                            <button class="config-tab-btn w-full text-left px-3 py-2 text-sm font-medium rounded-md transition-colors" data-tab="editor">
+                                Editor
+                            </button>
+                        </li>
+                        <li>
+                            <button class="config-tab-btn w-full text-left px-3 py-2 text-sm font-medium rounded-md transition-colors" data-tab="collaboration">
+                                Colaboración
+                            </button>
+                        </li>
+                        <li>
+                            <button class="config-tab-btn w-full text-left px-3 py-2 text-sm font-medium rounded-md transition-colors" data-tab="export">
+                                Exportación
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Contenido de Configuración -->
+            <div class="lg:col-span-2">
+                <!-- General -->
+                <div id="general-tab" class="config-tab-content bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Configuración General</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="darkMode" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <span class="ml-2 text-sm text-gray-700">Modo oscuro</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label for="language" class="block text-sm font-medium text-gray-700 mb-2">Idioma</label>
+                            <select id="language" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="es">Español</option>
+                                <option value="en">English</option>
+                                <option value="pt">Português</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="autoSave" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked>
+                                <span class="ml-2 text-sm text-gray-700">Guardado automático</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editor -->
+                <div id="editor-tab" class="config-tab-content bg-white rounded-lg shadow-sm border border-gray-200 p-6" style="display: none;">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Configuración del Editor</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="snapToGrid" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked>
+                                <span class="ml-2 text-sm text-gray-700">Ajustar a la cuadrícula</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="showGrid" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <span class="ml-2 text-sm text-gray-700">Mostrar cuadrícula</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label for="defaultFont" class="block text-sm font-medium text-gray-700 mb-2">Fuente por defecto</label>
+                            <select id="defaultFont" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="Inter">Inter</option>
+                                <option value="Arial">Arial</option>
+                                <option value="Helvetica">Helvetica</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Colaboración -->
+                <div id="collaboration-tab" class="config-tab-content bg-white rounded-lg shadow-sm border border-gray-200 p-6" style="display: none;">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Configuración de Colaboración</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="realTimeSync" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked>
+                                <span class="ml-2 text-sm text-gray-700">Sincronización en tiempo real</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="showCursors" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked>
+                                <span class="ml-2 text-sm text-gray-700">Mostrar cursores de otros usuarios</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="notifications" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked>
+                                <span class="ml-2 text-sm text-gray-700">Notificaciones de cambios</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exportación -->
+                <div id="export-tab" class="config-tab-content bg-white rounded-lg shadow-sm border border-gray-200 p-6" style="display: none;">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Configuración de Exportación</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="defaultExportFormat" class="block text-sm font-medium text-gray-700 mb-2">Formato de exportación por defecto</label>
+                            <select id="defaultExportFormat" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="png">PNG</option>
+                                <option value="svg">SVG</option>
+                                <option value="pdf">PDF</option>
+                                <option value="jpg">JPG</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="codeGenFramework" class="block text-sm font-medium text-gray-700 mb-2">Framework para generación de código</label>
+                            <select id="codeGenFramework" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="spring-boot">Spring Boot</option>
+                                <option value="django">Django</option>
+                                <option value="express">Express.js</option>
+                                <option value="laravel">Laravel</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="includeComments" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked>
+                                <span class="ml-2 text-sm text-gray-700">Incluir comentarios en código generado</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón Guardar -->
+                <div class="mt-6 flex justify-end">
+                    <button id="saveSettings" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors">
+                        Guardar Configuración
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar autenticación
+            if (!window.authManager || !window.authManager.isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Manejar tabs de configuración
+            const tabButtons = document.querySelectorAll('.config-tab-btn');
+            const tabContents = document.querySelectorAll('.config-tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    // Remover clase active de todos los botones
+                    tabButtons.forEach(btn => btn.classList.remove('active', 'bg-indigo-100', 'text-indigo-700'));
+                    tabButtons.forEach(btn => btn.classList.add('text-gray-600', 'hover:text-gray-900', 'hover:bg-gray-100'));
+                    
+                    // Agregar clase active al botón clickeado
+                    this.classList.add('active', 'bg-indigo-100', 'text-indigo-700');
+                    this.classList.remove('text-gray-600', 'hover:text-gray-900', 'hover:bg-gray-100');
+                    
+                    // Ocultar todos los contenidos
+                    tabContents.forEach(content => content.style.display = 'none');
+                    
+                    // Mostrar el contenido correspondiente
+                    document.getElementById(tabId + '-tab').style.display = 'block';
+                });
+            });
+
+            // Inicializar el primer tab como activo
+            tabButtons[0].classList.add('bg-indigo-100', 'text-indigo-700');
+            tabButtons[0].classList.remove('text-gray-600', 'hover:text-gray-900', 'hover:bg-gray-100');
+
+            // Manejar guardado de configuración
+            document.getElementById('saveSettings').addEventListener('click', function() {
+                // Aquí guardarías la configuración en localStorage o enviarías a tu API
+                const settings = {
+                    darkMode: document.getElementById('darkMode').checked,
+                    language: document.getElementById('language').value,
+                    autoSave: document.getElementById('autoSave').checked,
+                    snapToGrid: document.getElementById('snapToGrid').checked,
+                    showGrid: document.getElementById('showGrid').checked,
+                    defaultFont: document.getElementById('defaultFont').value,
+                    realTimeSync: document.getElementById('realTimeSync').checked,
+                    showCursors: document.getElementById('showCursors').checked,
+                    notifications: document.getElementById('notifications').checked,
+                    defaultExportFormat: document.getElementById('defaultExportFormat').value,
+                    codeGenFramework: document.getElementById('codeGenFramework').value,
+                    includeComments: document.getElementById('includeComments').checked
+                };
+
+                localStorage.setItem('umlEditorSettings', JSON.stringify(settings));
+                alert('Configuración guardada correctamente');
+            });
+
+            // Cargar configuración guardada
+            const savedSettings = localStorage.getItem('umlEditorSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                Object.keys(settings).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        if (element.type === 'checkbox') {
+                            element.checked = settings[key];
+                        } else {
+                            element.value = settings[key];
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+    <style>
+        .config-tab-btn.active {
+            background-color: rgb(238 242 255);
+            color: rgb(67 56 202);
+        }
+        .config-tab-btn:not(.active) {
+            color: rgb(75 85 99);
+        }
+        .config-tab-btn:not(.active):hover {
+            color: rgb(17 24 39);
+            background-color: rgb(249 250 251);
+        }
+    </style>
+</body>
+</html>

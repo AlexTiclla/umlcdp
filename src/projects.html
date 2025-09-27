@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Proyectos - UML Class Diagram Editor</title>
+    <link rel="stylesheet" href="../css/src/auth-styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .project-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .project-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="text-center">
+            <div class="spinner mx-auto mb-4"></div>
+            <p class="text-gray-600">Cargando proyectos...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="4" y="3" width="7" height="8" rx="1" />
+                        <rect x="13" y="13" width="7" height="8" rx="1" />
+                        <line x1="7.5" y1="11" x2="7.5" y2="13" />
+                        <line x1="7.5" y1="13" x2="16.5" y2="13" />
+                        <line x1="4" y1="6" x2="11" y2="6" />
+                        <line x1="13" y1="16" x2="20" y2="16" />
+                        <circle cx="7.5" cy="13" r="1" fill="currentColor" />
+                    </svg>
+                    <h1 class="text-xl font-bold text-gray-900">UML Class Diagram Editor</h1>
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <span id="userInitials" class="text-indigo-600 text-sm font-medium">U</span>
+                        </div>
+                        <div>
+                            <p id="userName" class="text-sm font-medium text-gray-900">Usuario</p>
+                            <p class="text-xs text-gray-500">Mis Proyectos</p>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <button id="userMenuButton" class="flex items-center text-gray-400 hover:text-gray-600">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                            </svg>
+                        </button>
+                        <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50 hidden">
+                            <a href="profile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ver Perfil</a>
+                            <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configuración</a>
+                            <hr class="my-1">
+                            <button id="logoutButton" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Cerrar Sesión</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header Section -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Mis Proyectos</h2>
+                <p class="text-gray-600 mt-1">Gestiona y colabora en proyectos de diagramas UML</p>
+            </div>
+            <button id="createProjectButton" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Nuevo Proyecto
+            </button>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input id="searchInput" type="text" placeholder="Buscar proyectos..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                </div>
+                <select id="visibilityFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <option value="">Todos los proyectos</option>
+                    <option value="owned">Mis proyectos</option>
+                    <option value="shared">Compartidos conmigo</option>
+                    <option value="public">Públicos</option>
+                </select>
+                <select id="sortFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <option value="updated">Última modificación</option>
+                    <option value="created">Fecha de creación</option>
+                    <option value="name">Nombre (A-Z)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Projects Grid -->
+        <div id="projectsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Projects will be loaded here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-12 hidden">
+            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No tienes proyectos aún</h3>
+            <p class="text-gray-600 mb-4">Crea tu primer proyecto para comenzar a diseñar diagramas UML</p>
+            <button class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                Crear Primer Proyecto
+            </button>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="flex items-center justify-between mt-8 hidden">
+            <div class="text-sm text-gray-700">
+                Mostrando <span id="paginationInfo">1-10 de 25</span> proyectos
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="prevPage" class="px-3 py-2 text-gray-500 hover:text-gray-700 disabled:opacity-50" disabled>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <span id="currentPage" class="px-3 py-2 bg-indigo-600 text-white rounded">1</span>
+                <button id="nextPage" class="px-3 py-2 text-gray-500 hover:text-gray-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create Project Modal -->
+    <div id="createProjectModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Crear Nuevo Proyecto</h3>
+                    <button id="closeModalButton" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <form id="createProjectForm">
+                    <div class="mb-4">
+                        <label for="projectName" class="block text-sm font-medium text-gray-700 mb-2">Nombre del proyecto</label>
+                        <input type="text" id="projectName" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Mi proyecto increíble">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="projectDescription" class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                        <textarea id="projectDescription" name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Describe tu proyecto..."></textarea>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="isPublic" name="isPublic" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="ml-2 text-sm text-gray-700">Hacer este proyecto público</span>
+                        </label>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button type="button" id="cancelCreateButton" class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                            Crear Proyecto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/api.js"></script>
+    <script src="../js/auth-manager.js"></script>
+    <script>
+        class ProjectManager {
+            constructor() {
+                this.projects = [];
+                this.currentPage = 1;
+                this.totalPages = 1;
+                this.currentUser = null;
+                this.init();
+            }
+
+            async init() {
+                await this.checkAuth();
+                this.setupEventListeners();
+                await this.loadProjects();
+            }
+
+            async checkAuth() {
+                const token = localStorage.getItem('authToken');
+                const userData = localStorage.getItem('userData');
+                
+                if (!token || !userData) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                try {
+                    this.currentUser = JSON.parse(userData);
+                    this.updateUserInfo();
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                    window.location.href = 'login.html';
+                }
+            }
+
+            updateUserInfo() {
+                const userNameEl = document.getElementById('userName');
+                const userInitialsEl = document.getElementById('userInitials');
+                
+                if (this.currentUser) {
+                    const fullName = `${this.currentUser.firstName || this.currentUser.first_name} ${this.currentUser.lastName || this.currentUser.last_name}`;
+                    userNameEl.textContent = fullName;
+                    
+                    const initials = (this.currentUser.firstName || this.currentUser.first_name || 'U')[0] + 
+                                   (this.currentUser.lastName || this.currentUser.last_name || '')[0];
+                    userInitialsEl.textContent = initials.toUpperCase();
+                }
+            }
+
+            setupEventListeners() {
+                // User menu
+                const userMenuButton = document.getElementById('userMenuButton');
+                const userDropdown = document.getElementById('userDropdown');
+                
+                userMenuButton.addEventListener('click', () => {
+                    userDropdown.classList.toggle('hidden');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
+                        userDropdown.classList.add('hidden');
+                    }
+                });
+
+                // Logout
+                document.getElementById('logoutButton').addEventListener('click', () => {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userData');
+                    window.location.href = 'login.html';
+                });
+
+                // Create project modal
+                document.getElementById('createProjectButton').addEventListener('click', () => {
+                    document.getElementById('createProjectModal').classList.remove('hidden');
+                });
+
+                document.getElementById('closeModalButton').addEventListener('click', () => {
+                    this.closeCreateModal();
+                });
+
+                document.getElementById('cancelCreateButton').addEventListener('click', () => {
+                    this.closeCreateModal();
+                });
+
+                // Create project form
+                document.getElementById('createProjectForm').addEventListener('submit', (e) => {
+                    this.handleCreateProject(e);
+                });
+
+                // Search and filters
+                document.getElementById('searchInput').addEventListener('input', () => {
+                    clearTimeout(this.searchTimeout);
+                    this.searchTimeout = setTimeout(() => this.loadProjects(), 300);
+                });
+
+                document.getElementById('visibilityFilter').addEventListener('change', () => {
+                    this.loadProjects();
+                });
+
+                document.getElementById('sortFilter').addEventListener('change', () => {
+                    this.loadProjects();
+                });
+            }
+
+            closeCreateModal() {
+                document.getElementById('createProjectModal').classList.add('hidden');
+                document.getElementById('createProjectForm').reset();
+            }
+
+            async handleCreateProject(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const projectData = {
+                    name: formData.get('name'),
+                    description: formData.get('description'),
+                    isPublic: formData.has('isPublic')
+                };
+
+                try {
+                    this.showLoading(true);
+                    const response = await window.api.createProject(projectData);
+                    
+                    if (response.success) {
+                        this.closeCreateModal();
+                        await this.loadProjects();
+                        this.showNotification('Proyecto creado exitosamente', 'success');
+                    } else {
+                        this.showNotification(response.message || 'Error al crear el proyecto', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error creating project:', error);
+                    this.showNotification('Error al crear el proyecto', 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            async loadProjects() {
+                try {
+                    this.showLoading(true);
+                    
+                    const params = {
+                        page: this.currentPage,
+                        search: document.getElementById('searchInput').value,
+                        visibility: document.getElementById('visibilityFilter').value,
+                        sort: document.getElementById('sortFilter').value
+                    };
+
+                    const response = await window.api.getProjects(params);
+                    
+                    if (response.success) {
+                        this.projects = response.data.projects;
+                        this.totalPages = response.data.totalPages;
+                        this.renderProjects();
+                        this.updatePagination(response.data);
+                    } else {
+                        this.showNotification(response.message || 'Error al cargar proyectos', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error loading projects:', error);
+                    this.showNotification('Error al cargar proyectos', 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            renderProjects() {
+                const container = document.getElementById('projectsContainer');
+                const emptyState = document.getElementById('emptyState');
+                
+                if (this.projects.length === 0) {
+                    container.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+
+                container.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                
+                container.innerHTML = this.projects.map(project => this.createProjectCard(project)).join('');
+                
+                // Add event listeners to project cards
+                container.querySelectorAll('.project-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const projectId = card.dataset.projectId;
+                        this.openProject(projectId);
+                    });
+                });
+            }
+
+            createProjectCard(project) {
+                const isOwner = project.ownerId === this.currentUser.id;
+                const memberCount = project.projectMembers ? project.projectMembers.length : 0;
+                const lastActivity = new Date(project.updatedAt).toLocaleDateString('es-ES');
+                
+                return `
+                    <div class="project-card bg-white rounded-lg shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-all duration-200 fade-in" data-project-id="${project.id}">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-1">${project.name}</h3>
+                                <p class="text-gray-600 text-sm line-clamp-2">${project.description || 'Sin descripción'}</p>
+                            </div>
+                            <div class="ml-4">
+                                ${project.isPublic ? 
+                                    '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Público</span>' : 
+                                    '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Privado</span>'
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <div class="flex items-center gap-4">
+                                <span class="flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                                    </svg>
+                                    ${memberCount + 1} miembro${memberCount === 0 ? '' : 's'}
+                                </span>
+                                <span>${isOwner ? 'Propietario' : 'Colaborador'}</span>
+                            </div>
+                            <span>Actualizado ${lastActivity}</span>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div class="flex -space-x-2">
+                                    ${this.renderProjectMembers(project)}
+                                </div>
+                                <button class="text-indigo-600 hover:text-indigo-800 font-medium text-sm">
+                                    Abrir proyecto →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderProjectMembers(project) {
+                const owner = project.owner;
+                const members = project.projectMembers || [];
+                const allMembers = [owner, ...members.map(pm => pm.user)];
+                
+                return allMembers.slice(0, 3).map(member => {
+                    const initials = (member.firstName || member.first_name || 'U')[0] + 
+                                   (member.lastName || member.last_name || '')[0];
+                    return `
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center">
+                            <span class="text-xs font-medium text-indigo-600">${initials.toUpperCase()}</span>
+                        </div>
+                    `;
+                }).join('') + 
+                (allMembers.length > 3 ? `
+                    <div class="w-8 h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center">
+                        <span class="text-xs font-medium text-gray-600">+${allMembers.length - 3}</span>
+                    </div>
+                ` : '');
+            }
+
+            updatePagination(data) {
+                const pagination = document.getElementById('pagination');
+                
+                if (data.totalPages > 1) {
+                    pagination.classList.remove('hidden');
+                    document.getElementById('paginationInfo').textContent = 
+                        `${data.startIndex}-${data.endIndex} de ${data.total}`;
+                    document.getElementById('currentPage').textContent = this.currentPage;
+                    
+                    document.getElementById('prevPage').disabled = this.currentPage <= 1;
+                    document.getElementById('nextPage').disabled = this.currentPage >= data.totalPages;
+                } else {
+                    pagination.classList.add('hidden');
+                }
+            }
+
+            openProject(projectId) {
+                // Guardar el proyecto actual en localStorage para que el editor lo use
+                localStorage.setItem('currentProjectId', projectId);
+                window.location.href = '../index.html';
+            }
+
+            showLoading(show) {
+                const overlay = document.getElementById('loadingOverlay');
+                if (show) {
+                    overlay.style.display = 'flex';
+                } else {
+                    overlay.style.display = 'none';
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                // Simple notification implementation
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                    type === 'success' ? 'bg-green-500 text-white' : 
+                    type === 'error' ? 'bg-red-500 text-white' : 
+                    'bg-blue-500 text-white'
+                }`;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+        }
+
+        // Initialize the project manager when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new ProjectManager();
+        });
+    </script>
+</body>
+</html>

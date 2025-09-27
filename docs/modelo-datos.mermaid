@@ -1,0 +1,141 @@
+---
+config:
+  theme: default
+  look: classic
+  layout: elk
+---
+erDiagram
+	direction TB
+	users {
+		uuid id PK ""  
+		varchar email UK ""  
+		varchar password_hash  ""  
+		varchar username UK ""  
+		varchar first_name  ""  
+		varchar last_name  ""  
+		enum role  ""  
+		varchar avatar_url  ""  
+		boolean is_active  "" #ESTE ATRIBUTO PUEDE ESTAR CAUSANDO EL PROBLEMA
+		boolean email_verified  ""  
+		timestamp last_login  ""  
+		timestamp created_at  ""  
+		timestamp updated_at  ""  
+		varchar avatar ""
+		timestamptz last_login_at ""
+		varchar company ""
+	}
+	projects {
+		uuid id PK ""  
+		varchar name  ""  
+		text description  ""  
+		uuid owner_id FK ""  
+		boolean is_public  ""  
+		jsonb settings  ""  
+		timestamp created_at  ""  
+		timestamp updated_at  ""  
+	}
+	diagrams {
+		uuid id PK ""  
+		uuid project_id FK ""  
+		varchar name  ""  
+		text description  ""  
+		jsonb content  ""  
+		boolean is_active  ""  
+		timestamp created_at  ""  
+		timestamp updated_at  ""  
+	}
+	project_members {
+		uuid id PK ""  
+		uuid project_id FK ""  
+		uuid user_id FK ""  
+		enum role  ""  
+		jsonb permissions  ""  
+		uuid invited_by FK ""  
+		timestamp invited_at  ""  
+		timestamp joined_at  ""  
+		enum status  ""  
+	}
+	diagram_versions {
+		uuid id PK ""  
+		uuid diagram_id FK ""  
+		integer version_number  ""  
+		jsonb content  ""  
+		text changes_summary  ""  
+		uuid created_by FK ""  
+		timestamp created_at  ""  
+	}
+	collaboration_sessions {
+		uuid id PK ""  
+		uuid user_id FK ""  
+		uuid diagram_id FK ""  
+		varchar session_token  ""  
+		boolean is_active  ""  
+		timestamp last_activity  ""  
+		jsonb locked_elements  ""  
+		jsonb cursor_position  ""  
+		timestamp created_at  ""  
+	}
+	ai_interactions {
+		uuid id PK ""  
+		uuid user_id FK ""  
+		uuid diagram_id FK ""  
+		enum interaction_type  ""  
+		text prompt  ""  
+		text response  ""  
+		jsonb context  ""  
+		float confidence_score  ""  
+		timestamp created_at  ""  
+	}
+	generated_code {
+		uuid id PK ""  
+		uuid diagram_id FK ""  
+		varchar version  ""  
+		varchar language  ""  
+		jsonb code_structure  ""  
+		jsonb files  ""  
+		boolean is_valid  ""  
+		text compilation_errors  ""  
+		timestamp created_at  ""  
+	}
+	diagram_elements {
+		uuid id PK ""  
+		uuid diagram_id FK ""  
+		varchar element_id  ""  
+		enum element_type  ""  
+		varchar name  ""  
+		jsonb attributes  ""  
+		jsonb methods  ""  
+		jsonb position  ""  
+		jsonb size  ""  
+		jsonb properties  ""  
+		timestamp created_at  ""  
+		timestamp updated_at  ""  
+	}
+	diagram_relationships {
+		uuid id PK ""  
+		uuid diagram_id FK ""  
+		varchar relationship_id  ""  
+		varchar source_element_id  ""  
+		varchar target_element_id  ""  
+		enum relationship_type  ""  
+		varchar source_multiplicity  ""  
+		varchar target_multiplicity  ""  
+		jsonb properties  ""  
+		timestamp created_at  ""  
+		timestamp updated_at  ""  
+	}
+
+users||--o{projects:"posee"
+users||--o{project_members:"se une"
+users||--o{diagram_versions:"crea"
+users||--o{collaboration_sessions:"inicia"
+users||--o{ai_interactions:"realiza"
+projects||--o{diagrams:"contiene"
+projects||--o{project_members:"tiene"
+diagrams||--o{diagram_versions:"tiene"
+diagrams||--o{collaboration_sessions:"tiene"
+diagrams||--o{ai_interactions:"recibe"
+diagrams||--o{generated_code:"genera"
+diagrams||--o{diagram_elements:"contiene"
+diagrams||--o{diagram_relationships:"contiene"
+

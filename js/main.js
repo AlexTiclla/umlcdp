@@ -86,6 +86,20 @@ document.addEventListener("DOMContentLoaded", function () {
         },
     });
 
+    if (typeof graph !== 'undefined' && typeof paper !== 'undefined') {
+        window.graph = graph;
+        window.paper = paper;
+        console.log('✅ Graph y Paper expuestos globalmente');
+        
+        // Reinicializar CollaborationManager si existe
+        if (window.collaborationManager) {
+            window.collaborationManager.setupDiagramEvents();
+            console.log('✅ Event listeners reconfigurados');
+        }
+    } else {
+        console.error('❌ Graph o Paper no están disponibles aún');
+    }
+
     paper.$el.css({
         border: "none",
         borderLeft: "1px solid #e2e8f0",

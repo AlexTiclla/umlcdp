@@ -13,6 +13,88 @@
             rel="stylesheet"
         />
         <link rel="stylesheet" href="css/styles.css" />
+        <style>
+            /* Estilos para el dropdown del perfil */
+            #profileDropdown {
+                position: absolute !important;
+                z-index: 1000 !important;
+            }
+            
+            #userInfo {
+                position: relative !important;
+            }
+            
+            /* Asegurar que el dropdown sea visible cuando se muestra */
+            #profileDropdown[style*="display: block"] {
+                position: absolute !important;
+                z-index: 1000 !important;
+                top: 100% !important;
+                left: 0 !important;
+                right: 0 !important;
+                margin-top: 0.5rem !important;
+            }
+            
+            /* Estilos específicos para el botón de cerrar sesión */
+            #headerLogoutBtn {
+                color: #dc2626 !important;
+            }
+            
+            #headerLogoutBtn:hover {
+                background-color: #fef2f2 !important;
+                color: #b91c1c !important;
+            }
+            
+            #headerLogoutBtn span:last-child {
+                color: #dc2626 !important;
+                font-weight: 500 !important;
+            }
+            
+            /* Estilos para colaboración */
+            .element-locked {
+                border: 2px solid #ef4444 !important;
+                box-shadow: 0 0 10px rgba(239, 68, 68, 0.3) !important;
+            }
+            
+            .element-locked::after {
+                content: attr(data-locked-by);
+                position: absolute;
+                top: -25px;
+                left: 0;
+                background: #ef4444;
+                color: white;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 10px;
+                font-weight: 500;
+                z-index: 1000;
+            }
+            
+            .remote-cursor {
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                background: #6366f1;
+                border-radius: 50% 0 50% 50%;
+                transform: rotate(-45deg);
+                pointer-events: none;
+                z-index: 1000;
+                transition: all 0.1s ease;
+            }
+            
+            .remote-cursor::after {
+                content: attr(data-user-name);
+                position: absolute;
+                top: 20px;
+                left: 10px;
+                background: #6366f1;
+                color: white;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 10px;
+                white-space: nowrap;
+                transform: rotate(45deg);
+            }
+        </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.4.0/backbone-min.js"></script>
@@ -21,8 +103,59 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/jointjs/3.5.5/joint.min.css"
         />
+        <!-- AuthManager para autenticación -->
+        <script src="js/auth-manager.js"></script>
+        <!-- Socket Manager para colaboración en tiempo real -->
+        <script src="js/socket-manager.js"></script>
     </head>
     <body class="bg-gray-100">
+        <!-- Header de Autenticación -->
+        <div id="authHeader" class="bg-indigo-600 text-white px-4 py-2 text-sm" style="display: none;">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold">👤</span>
+                    </div>
+                    <div>
+                        <span id="userInfoHeader" class="font-medium">Usuario no autenticado</span>
+                    </div>
+                </div>
+                
+                <!-- Menú de Usuario en Header -->
+                <div class="relative">
+                    <button id="userMenuBtn" class="flex items-center gap-2 text-white hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-md transition-colors">
+                        <span class="text-sm">Menú</span>
+                        <span id="menuIcon" class="text-sm transition-transform duration-200">▼</span>
+                    </button>
+                    
+                    <!-- Dropdown del Menú -->
+                    <div id="userMenuDropdown" class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50" style="display: none;">
+                        <button id="headerBackToProjectsBtn" class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3">
+                            <span class="text-base">📁</span>
+                            Mis Proyectos
+                        </button>
+                        <button id="headerViewProfileBtn" class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3">
+                            <span class="text-base">👤</span>
+                            Ver Perfil
+                        </button>
+                        <button id="headerEditProfileBtn" class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3">
+                            <span class="text-base">✏️</span>
+                            Editar Perfil
+                        </button>
+                        <button id="headerSettingsBtn" class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3">
+                            <span class="text-base">⚙️</span>
+                            Configuración
+                        </button>
+                        <hr class="my-2 border-gray-200">
+                        <button id="headerLogoutBtn" class="w-full px-4 py-2 text-left text-sm hover:bg-red-50 flex items-center gap-3" style="color: #dc2626;">
+                            <span class="text-base">🚪</span>
+                            <span style="color: #dc2626; font-weight: 500;">Cerrar Sesión</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="flex h-screen bg-white">
             <div
                 class="w-80 bg-white shadow-lg py-8 border-r border-gray-200 flex flex-col"
@@ -52,6 +185,40 @@
                         <span class="text-indigo-600">EDITOR</span>
                     </a>
                 </div>
+                
+                <!-- Sección de Autenticación (solo visible cuando NO está autenticado) -->
+                <div id="authSection" class="px-6 mb-4">
+                <!-- Prompt de Login (solo visible cuando NO está autenticado) -->
+                <div id="loginPrompt" class="bg-gray-50 rounded-lg p-4 text-center flex flex-col items-center gap-2">
+                    <p class="text-sm text-gray-600 mb-2 w-full text-left">Inicia sesión para colaborar</p>
+                    <a href="src/login.html" class="w-full">
+                        <button class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2">
+                            Iniciar Sesión
+                        </button>
+                    </a>
+                    <div class="w-full mt-2">
+                        <button id="skipLoginBtn" class="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-300 transition-colors">
+                            Continuar sin iniciar sesión
+                        </button>
+                        <p class="text-xs text-gray-500 mt-1">Los diagramas no se guardarán</p>
+                    </div>
+                </div>
+
+                <!-- Panel de Colaboradores (solo visible cuando está autenticado) -->
+                <div id="collaboratorsPanel" class="bg-white rounded-lg border border-gray-200 p-4 hidden">
+                    <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        Colaboradores Activos
+                    </h4>
+                    <div id="collaboratorsList" class="space-y-2">
+                        <!-- Los colaboradores se cargarán aquí -->
+                    </div>
+                    <div id="noCollaborators" class="text-xs text-gray-500 text-center py-2">
+                        Solo tú estás trabajando en este proyecto
+                    </div>
+                </div>
+                </div>
+
                 <div class="flex-1 overflow-y-auto px-6">
                     <div class="tool-section elements">
                         <h3>
@@ -158,6 +325,472 @@
         <script src="js/umlShapes.js"></script>
         <script src="js/relationships.js"></script>
         <script src="js/codeGenerator.js"></script>
+        <script src="js/api.js"></script>
+        <script src="js/persistence.js"></script>
+        <script src="js/collaboration.js"></script>
         <script src="js/main.js"></script>
+        
+        <!-- Script de Autenticación -->
+        <script>
+            // Inicializar autenticación cuando se carga la página
+            document.addEventListener('DOMContentLoaded', function() {
+                // Esperar un poco para que todos los scripts se carguen
+                setTimeout(() => {
+                    initializeAuthUI();
+                }, 100);
+            });
+
+        function initializeAuthUI() {
+            const loginPrompt = document.getElementById('loginPrompt');
+            const authHeader = document.getElementById('authHeader');
+            const userInfoHeader = document.getElementById('userInfoHeader');
+            
+            // Elementos del menú en el header
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userMenuDropdown = document.getElementById('userMenuDropdown');
+            const menuIcon = document.getElementById('menuIcon');
+            const headerViewProfileBtn = document.getElementById('headerViewProfileBtn');
+            const headerEditProfileBtn = document.getElementById('headerEditProfileBtn');
+            const headerSettingsBtn = document.getElementById('headerSettingsBtn');
+            const headerLogoutBtn = document.getElementById('headerLogoutBtn');
+            
+            let isMenuOpen = false;
+
+            // Función para toggle del menú dropdown
+            function toggleUserMenu() {
+                isMenuOpen = !isMenuOpen;
+                if (isMenuOpen) {
+                    userMenuDropdown.style.display = 'block';
+                    menuIcon.textContent = '▲';
+                } else {
+                    userMenuDropdown.style.display = 'none';
+                    menuIcon.textContent = '▼';
+                }
+            }
+
+            // Event listener para el botón del menú
+            if (userMenuBtn) {
+                userMenuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleUserMenu();
+                });
+            }
+
+            // Cerrar menú al hacer click fuera
+            document.addEventListener('click', function(e) {
+                if (isMenuOpen && !userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                    toggleUserMenu();
+                }
+            });
+
+            // Debug: Verificar estado de autenticación
+                console.log('🔍 Debug AuthManager:', {
+                    exists: !!window.authManager,
+                    authenticated: window.authManager ? window.authManager.isAuthenticated() : false,
+                    currentUser: window.authManager ? window.authManager.getCurrentUser() : null,
+                    token: localStorage.getItem('authToken'),
+                    userData: localStorage.getItem('userData')
+                });
+                
+                // El menú es siempre visible, no necesitamos lógica de toggle
+
+                // Función para actualizar la UI de autenticación
+                function updateAuthUI() {
+                    console.log('🔄 Actualizando UI de autenticación...');
+                    
+                    // Verificar directamente en localStorage (método más confiable)
+                    const hasToken = localStorage.getItem('authToken') !== null;
+                    const userDataString = localStorage.getItem('userData');
+                    
+                    console.log('🔍 Estado de autenticación:', {
+                        hasToken,
+                        hasUserData: !!userDataString,
+                        token: localStorage.getItem('authToken') ? 'presente' : 'ausente',
+                        userData: userDataString ? 'presente' : 'ausente'
+                    });
+                    
+                    if (hasToken && userDataString) {
+                        try {
+                            const storedUserData = JSON.parse(userDataString);
+                            console.log('👤 Datos del usuario:', storedUserData);
+                            
+                            // Verificar si tiene firstName O first_name (diferentes formatos)
+                            const firstName = storedUserData.firstName || storedUserData.first_name;
+                            const lastName = storedUserData.lastName || storedUserData.last_name;
+                            
+                            if (storedUserData && firstName) {
+                                // Mostrar información del usuario en el header
+                                userInfoHeader.textContent = `${firstName} ${lastName} (${storedUserData.role})`;
+                                
+                                // Mostrar header de usuario autenticado y ocultar login
+                                loginPrompt.style.display = 'none';
+                                authHeader.style.display = 'block';
+                                
+                                console.log('🎯 Elementos DOM después de mostrar UI:');
+                                console.log('loginPrompt display:', loginPrompt.style.display);
+                                console.log('authHeader display:', authHeader.style.display);
+                                console.log('userInfoHeader text:', userInfoHeader.textContent);
+                                
+                                console.log('✅ Mostrando UI de usuario autenticado');
+                                
+                                // Sincronizar con AuthManager si está disponible
+                                if (window.authManager && !window.authManager.getCurrentUser()) {
+                                    window.authManager.currentUser = storedUserData;
+                                }
+                                
+                                // UI del usuario autenticado mostrada correctamente
+                                
+                                return; // IMPORTANTE: Salir de la función aquí
+                            } else {
+                                console.log('⚠️ Datos de usuario incompletos:', storedUserData);
+                            }
+                        } catch (error) {
+                            console.error('Error parsing stored user data:', error);
+                            localStorage.removeItem('userData');
+                            localStorage.removeItem('authToken');
+                        }
+                    }
+                    
+                // Solo llegar aquí si NO hay token O NO hay datos de usuario
+                console.log('❌ Mostrando UI de usuario no autenticado');
+                loginPrompt.style.display = 'block';
+                authHeader.style.display = 'none';
+                }
+
+                // Configurar botones del menú en el header
+                if (headerLogoutBtn) {
+                    headerLogoutBtn.addEventListener('click', function() {
+                        if (window.authManager) {
+                            window.authManager.logout();
+                            window.location.reload();
+                        }
+                    });
+                }
+
+                if (headerViewProfileBtn) {
+                    headerViewProfileBtn.addEventListener('click', function() {
+                        window.location.href = 'src/profile.html';
+                    });
+                }
+
+                if (headerEditProfileBtn) {
+                    headerEditProfileBtn.addEventListener('click', function() {
+                        window.location.href = 'src/edit-profile.html';
+                    });
+                }
+
+                if (headerSettingsBtn) {
+                    headerSettingsBtn.addEventListener('click', function() {
+                        window.location.href = 'src/settings.html';
+                    });
+                }
+
+                // Configurar botón de volver a proyectos
+                const headerBackToProjectsBtn = document.getElementById('headerBackToProjectsBtn');
+                if (headerBackToProjectsBtn) {
+                    headerBackToProjectsBtn.addEventListener('click', function() {
+                        localStorage.removeItem('currentProjectId');
+                        window.location.href = 'src/projects.html';
+                    });
+                }
+
+                // Escuchar cambios de autenticación
+                window.addEventListener('authChange', function(e) {
+                    console.log('🔄 Evento de autenticación:', e.detail);
+                    if (e.detail.type === 'logout') {
+                        updateAuthUI();
+                    } else if (e.detail.type === 'login') {
+                        updateAuthUI();
+                    }
+                });
+
+                // Verificar periódicamente si hay cambios en localStorage
+                let lastTokenState = localStorage.getItem('authToken');
+                const checkInterval = setInterval(() => {
+                    const currentTokenState = localStorage.getItem('authToken');
+                    if (currentTokenState !== lastTokenState) {
+                        console.log('🔄 Cambio detectado en autenticación, actualizando UI');
+                        lastTokenState = currentTokenState;
+                        updateAuthUI();
+                    }
+                }, 500);
+
+                // Función de prueba para simular login
+                window.testLogin = function() {
+                    console.log('🧪 Simulando login de prueba...');
+                    
+                    // Crear datos de usuario de prueba
+                    const testUser = {
+                        id: 1,
+                        first_name: 'Juan',
+                        last_name: 'Pérez',
+                        email: 'juan@test.com',
+                        role: 'admin',
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    // Simular token de autenticación
+                    const testToken = 'test_token_' + Date.now();
+                    
+                    // Guardar en localStorage
+                    localStorage.setItem('authToken', testToken);
+                    localStorage.setItem('userData', JSON.stringify(testUser));
+                    
+                    console.log('✅ Login de prueba completado');
+                    console.log('📦 Datos guardados:', {
+                        token: localStorage.getItem('authToken'),
+                        userData: localStorage.getItem('userData')
+                    });
+                    
+                    // Actualizar UI
+                    updateAuthUI();
+                };
+                
+                // Función de prueba para simular logout
+                window.testLogout = function() {
+                    console.log('🧪 Simulando logout...');
+                    
+                    // Limpiar localStorage
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userData');
+                    
+                    console.log('✅ Logout de prueba completado');
+                    
+                    // Actualizar UI
+                    updateAuthUI();
+                };
+                
+                // Función para limpiar completamente y recargar
+                window.clearAllAndReload = function() {
+                    console.log('🧹 Limpiando todo y recargando...');
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.reload();
+                };
+                
+                // Función para verificar el estado actual
+                window.checkAuthState = function() {
+                    console.log('🔍 Estado actual de autenticación:');
+                    console.log('Token:', localStorage.getItem('authToken'));
+                    console.log('User Data:', localStorage.getItem('userData'));
+                    console.log('AuthManager exists:', !!window.authManager);
+                    console.log('AuthManager authenticated:', window.authManager ? window.authManager.isAuthenticated() : false);
+                    console.log('AuthManager current user:', window.authManager ? window.authManager.getCurrentUser() : null);
+                };
+                
+                // Función para forzar actualización de UI
+                window.forceUpdateUI = function() {
+                    console.log('🔄 Forzando actualización de UI...');
+                    updateAuthUI();
+                };
+                
+                // Función para verificar elementos DOM
+                window.checkDOMElements = function() {
+                    console.log('🔍 Verificando elementos DOM:');
+                    const loginPrompt = document.getElementById('loginPrompt');
+                    const authHeader = document.getElementById('authHeader');
+                    const userInfoHeader = document.getElementById('userInfoHeader');
+                    const userMenuBtn = document.getElementById('userMenuBtn');
+                    const userMenuDropdown = document.getElementById('userMenuDropdown');
+                    
+                    console.log('loginPrompt:', loginPrompt);
+                    console.log('authHeader:', authHeader);
+                    console.log('userInfoHeader:', userInfoHeader);
+                    console.log('userMenuBtn:', userMenuBtn);
+                    console.log('userMenuDropdown:', userMenuDropdown);
+                };
+                
+                // Función para probar el menú del usuario
+                window.testUserMenu = function() {
+                    console.log('🧪 Probando menú del usuario...');
+                    const userMenuBtn = document.getElementById('userMenuBtn');
+                    if (userMenuBtn) {
+                        userMenuBtn.click();
+                        console.log('✅ Click en botón del menú ejecutado');
+                    } else {
+                        console.log('❌ Botón del menú no encontrado');
+                    }
+                };
+                
+                // Función para verificar dropdown específicamente
+                window.checkDropdown = function() {
+                    console.log('🔍 Verificando dropdown:');
+                    const profileDropdownBtn = document.getElementById('profileDropdownBtn');
+                    const profileDropdown = document.getElementById('profileDropdown');
+                    const dropdownIcon = document.getElementById('dropdownIcon');
+                    
+                    console.log('profileDropdownBtn:', profileDropdownBtn);
+                    console.log('profileDropdown:', profileDropdown);
+                    console.log('dropdownIcon:', dropdownIcon);
+                    
+                    if (profileDropdown) {
+                        console.log('Dropdown display:', window.getComputedStyle(profileDropdown).display);
+                        console.log('Dropdown visibility:', window.getComputedStyle(profileDropdown).visibility);
+                    }
+                    
+                    if (profileDropdownBtn) {
+                        console.log('Botón clickeable:', !profileDropdownBtn.disabled);
+                        console.log('Botón visible:', window.getComputedStyle(profileDropdownBtn).display !== 'none');
+                    }
+                };
+                
+                // Función para forzar mostrar dropdown
+                window.showDropdown = function() {
+                    console.log('🔄 Forzando mostrar dropdown...');
+                    const profileDropdown = document.getElementById('profileDropdown');
+                    if (profileDropdown) {
+                        profileDropdown.style.display = 'block';
+                        console.log('✅ Dropdown mostrado');
+                    } else {
+                        console.log('❌ Dropdown no encontrado');
+                    }
+                };
+                
+                // Función para probar toggle manualmente
+                window.testToggleDropdown = function() {
+                    console.log('🧪 Probando toggle manual del dropdown...');
+                    toggleDropdown();
+                };
+                
+                // Función para simular click en botón
+                window.simulateDropdownClick = function() {
+                    console.log('🧪 Simulando click en botón dropdown...');
+                    const profileDropdownBtn = document.getElementById('profileDropdownBtn');
+                    if (profileDropdownBtn) {
+                        profileDropdownBtn.click();
+                    } else {
+                        console.log('❌ Botón dropdown no encontrado');
+                    }
+                };
+                
+                // Función para hacer el dropdown más visible
+                window.makeDropdownVisible = function() {
+                    console.log('🔄 Haciendo dropdown más visible...');
+                    const dropdown = document.getElementById('profileDropdown');
+                    const dropdownBtn = document.getElementById('profileDropdownBtn');
+                    
+                    if (dropdown) {
+                        // Corregir estilos CSS
+                        dropdown.style.display = 'block';
+                        dropdown.style.position = 'absolute';
+                        dropdown.style.zIndex = '1000';
+                        dropdown.style.top = '100%';
+                        dropdown.style.left = '0';
+                        dropdown.style.right = '0';
+                        dropdown.style.marginTop = '0.5rem';
+                        dropdown.style.opacity = '1';
+                        dropdown.style.visibility = 'visible';
+                        dropdown.style.border = '2px solid red'; // Temporal para debugging
+                        console.log('✅ Dropdown hecho visible con estilos corregidos');
+                    }
+                    
+                    if (dropdownBtn) {
+                        dropdownBtn.style.border = '2px solid blue'; // Temporal para debugging
+                        dropdownBtn.style.backgroundColor = 'rgba(255, 255, 0, 0.3)'; // Temporal para debugging
+                        console.log('✅ Botón dropdown resaltado');
+                    }
+                };
+                
+                // Función para verificar si el dropdown es clickeable
+                window.testDropdownClick = function() {
+                    console.log('🧪 Probando click en dropdown...');
+                    const dropdownBtn = document.getElementById('profileDropdownBtn');
+                    if (dropdownBtn) {
+                        console.log('Botón encontrado, simulando click...');
+                        dropdownBtn.click();
+                        
+                        // Verificar si el dropdown se abrió
+                        setTimeout(() => {
+                            const dropdown = document.getElementById('profileDropdown');
+                            if (dropdown) {
+                                const display = window.getComputedStyle(dropdown).display;
+                                const position = window.getComputedStyle(dropdown).position;
+                                const zIndex = window.getComputedStyle(dropdown).zIndex;
+                                console.log('Dropdown después del click:', {
+                                    display,
+                                    position,
+                                    zIndex
+                                });
+                                if (display === 'block') {
+                                    console.log('✅ Dropdown se abrió correctamente');
+                                } else {
+                                    console.log('❌ Dropdown no se abrió');
+                                }
+                            }
+                        }, 100);
+                    } else {
+                        console.log('❌ Botón dropdown no encontrado');
+                    }
+                };
+                
+                // Función para mostrar dropdown inmediatamente
+                window.showDropdownNow = function() {
+                    console.log('🔄 Mostrando dropdown inmediatamente...');
+                    const dropdown = document.getElementById('profileDropdown');
+                    if (dropdown) {
+                        dropdown.style.display = 'block';
+                        dropdown.style.position = 'absolute';
+                        dropdown.style.zIndex = '1000';
+                        dropdown.style.top = '100%';
+                        dropdown.style.left = '0';
+                        dropdown.style.right = '0';
+                        dropdown.style.marginTop = '0.5rem';
+                        dropdown.style.backgroundColor = 'white';
+                        dropdown.style.border = '1px solid #ccc';
+                        dropdown.style.borderRadius = '8px';
+                        dropdown.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                        dropdown.style.padding = '8px 0';
+                        dropdown.style.minWidth = '200px';
+                        
+                        console.log('✅ Dropdown mostrado con todos los estilos');
+                        console.log('Dropdown styles:', {
+                            display: dropdown.style.display,
+                            position: dropdown.style.position,
+                            zIndex: dropdown.style.zIndex,
+                            top: dropdown.style.top,
+                            left: dropdown.style.left
+                        });
+                    } else {
+                        console.log('❌ Dropdown no encontrado');
+                    }
+                };
+                
+                // Función para encontrar y resaltar el botón del dropdown
+                window.findDropdownButton = function() {
+                    console.log('🔍 Buscando botón del dropdown...');
+                    const dropdownBtn = document.getElementById('profileDropdownBtn');
+                    if (dropdownBtn) {
+                        // Resaltar el botón
+                        dropdownBtn.style.border = '3px solid red';
+                        dropdownBtn.style.backgroundColor = 'yellow';
+                        dropdownBtn.style.position = 'relative';
+                        dropdownBtn.style.zIndex = '9999';
+                        
+                        // Obtener posición del botón
+                        const rect = dropdownBtn.getBoundingClientRect();
+                        console.log('✅ Botón encontrado en posición:', {
+                            top: rect.top,
+                            left: rect.left,
+                            width: rect.width,
+                            height: rect.height
+                        });
+                        
+                        // Scroll al botón si está fuera de vista
+                        dropdownBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        console.log('🎯 Botón resaltado en amarillo con borde rojo');
+                        console.log('📍 Haz click en el botón amarillo para probar el dropdown');
+                        
+                        return true;
+                    } else {
+                        console.log('❌ Botón dropdown no encontrado');
+                        return false;
+                    }
+                };
+
+                // Inicializar la UI inmediatamente
+                updateAuthUI();
+            }
+        </script>
     </body>
 </html>
