@@ -196,6 +196,22 @@ class SocketManager {
       this.emit('cursorMoved', data);
     });
 
+    // Eventos de confirmación
+    this.socket.on('elementAddedConfirm', (data) => {
+      console.log('✅ Confirmación de elemento agregado:', data.elementId);
+      this.emit('elementAddedConfirm', data);
+    });
+
+    this.socket.on('elementUpdatedConfirm', (data) => {
+      console.log('✅ Confirmación de elemento actualizado:', data.elementId);
+      this.emit('elementUpdatedConfirm', data);
+    });
+
+    this.socket.on('elementDeletedConfirm', (data) => {
+      console.log('✅ Confirmación de elemento eliminado:', data.elementId);
+      this.emit('elementDeletedConfirm', data);
+    });
+
     // Eventos de error
     this.socket.on('error', (error) => {
       console.error('❌ Error del servidor:', error);

@@ -1,4 +1,6 @@
+// Variables globales para el editor
 let graph, paper;
+window.graph = null; // Referencia global al grafo para uso en otros módulos
 let currentTool = null;
 let sourceElement = null;
 let lastHighlightedView = null;
@@ -33,6 +35,7 @@ function clearHighlight() {
 
 document.addEventListener("DOMContentLoaded", function () {
     graph = new joint.dia.Graph();
+    window.graph = graph; // Hacer accesible globalmente
 
     paper = new joint.dia.Paper({
         el: document.getElementById("paper"),
@@ -335,6 +338,41 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Botón de guardado
+    document.getElementById("saveDiagramBtn").addEventListener("click", async function() {
+        try {
+            const projectId = localStorage.getItem('currentProjectId');
+            const diagramId = localStorage.getItem('currentDiagramId');
+            const diagramName = localStorage.getItem('currentDiagramName') || 'Nuevo Diagrama';
+
+            if (!window.apiClient || !window.apiClient.token) {
+                alert('Debes iniciar sesión para guardar el diagrama');
+                return;
+            }
+
+            if (!projectId) {
+                alert('Debes crear o seleccionar un proyecto primero');
+                return;
+            }
+
+            // Guardar diagrama
+            const result = await window.umlPersistence.saveDiagram(graph, projectId, diagramId, diagramName);
+            
+            // Si es un nuevo diagrama, guardar el ID
+            if (result && result.id) {
+                localStorage.setItem('currentDiagramId', result.id);
+            }
+
+            // Mostrar notificación de éxito
+            window.umlPersistence.showSuccessNotification('Diagrama guardado exitosamente');
+
+        } catch (error) {
+            console.error('Error guardando diagrama:', error);
+            alert('Error al guardar el diagrama: ' + error.message);
+        }
+    });
+
+    // Botón de generación de código
     document
         .getElementById("codeGenButton")
         .addEventListener("click", showLanguageSelection);
@@ -378,6 +416,15 @@ document.addEventListener("DOMContentLoaded", function () {
                             <span>PHP</span>
                         </div>
                     </button>
+                    <button class="language-btn spring-boot w-full px-3 py-2 rounded-md text-left font-medium transition-all duration-200
+                                 border-2 border-green-300 bg-green-50 hover:bg-green-100 hover:shadow-md focus:outline-none text-sm"
+                            data-language="spring-boot">
+                        <div class="flex items-center">
+                            <span class="text-base mr-2">🚀</span>
+                            <span class="font-semibold text-green-700">Spring Boot Backend</span>
+                        </div>
+                        <div class="text-xs text-green-600 mt-1">Proyecto completo con JPA, CRUD y descarga ZIP</div>
+                    </button>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 flex justify-end border-t">
                     <button id="cancelLanguageSelect"
@@ -400,6 +447,8 @@ document.addEventListener("DOMContentLoaded", function () {
         languageButtons.forEach((button) => {
             button.addEventListener("click", function () {
                 const language = this.dataset.language;
+                // Cerrar el modal de selección de lenguaje
+                closeModal();
                 showCodePreview(language);
             });
         });
@@ -422,7 +471,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function showCodePreview(language) {
+    async function showCodePreview(language) {
+        // Para Spring Boot, usar el generador asíncrono
+        if (language === 'spring-boot') {
+            try {
+                const result = await CodeGenerator.generateSpringBootProject(graph);
+                // El resultado se maneja en el modal de descarga, no necesitamos mostrar código aquí
+                return;
+            } catch (error) {
+                console.error('Error generando proyecto Spring Boot:', error);
+                alert('Error al generar proyecto Spring Boot: ' + error.message);
+                return;
+            }
+        }
+        
         const code = CodeGenerator.generateCode(graph, language);
 
         const modal = document.createElement("div");

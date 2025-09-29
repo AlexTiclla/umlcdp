@@ -63,7 +63,7 @@ class UMLPersistence {
             this.saveToLocalStorage(diagramData);
             
             // Si hay conexión y proyecto/diagrama, sincronizar con backend
-            if (this.isOnline && projectId && diagramId && window.umlAPI.isAuthenticated()) {
+            if (this.isOnline && projectId && diagramId && window.apiClient && window.apiClient.token) {
                 await this.syncToBackend(projectId, diagramId, diagramData);
             } else if (this.isOnline && projectId && diagramId) {
                 // Agregar a cambios pendientes si no hay autenticación
@@ -86,15 +86,19 @@ class UMLPersistence {
             this.saveToLocalStorage(diagramData);
             
             // Guardar en backend si está disponible
-            if (this.isOnline && window.umlAPI.isAuthenticated()) {
+            if (this.isOnline && window.apiClient && window.apiClient.token) {
+                let savedDiagramId = diagramId;
+                
                 if (diagramId) {
-                    await window.umlAPI.updateDiagram(projectId, diagramId, {
+                    // Actualizar diagrama existente
+                    await window.apiClient.updateDiagram(diagramId, {
                         name: diagramName,
                         content: diagramData,
                         lastModified: new Date().toISOString()
                     });
                 } else {
-                    const result = await window.umlAPI.saveDiagram(projectId, {
+                    // Crear nuevo diagrama
+                    const result = await window.apiClient.createDiagram(projectId, {
                         name: diagramName,
                         content: diagramData,
                         metadata: {
@@ -102,15 +106,28 @@ class UMLPersistence {
                             version: '1.0'
                         }
                     });
-                    return result;
+                    
+                    if (result && result.id) {
+                        savedDiagramId = result.id;
+                    }
                 }
                 
                 this.showSuccessNotification('Diagrama guardado exitosamente');
+                
+                // Devolver el ID del diagrama en ambos casos
+                return { 
+                    success: true, 
+                    id: savedDiagramId 
+                };
             } else {
                 this.showWarningNotification('Guardado local. Se sincronizará cuando haya conexión.');
+                
+                // Incluso sin conexión, devolver el ID si existe
+                return {
+                    success: true,
+                    id: diagramId || null
+                };
             }
-            
-            return { success: true };
         } catch (error) {
             console.error('Error guardando diagrama:', error);
             this.showErrorNotification('Error guardando diagrama');
@@ -124,9 +141,9 @@ class UMLPersistence {
             let diagramData = null;
             
             // Intentar cargar desde backend primero
-            if (this.isOnline && window.umlAPI.isAuthenticated()) {
+            if (this.isOnline && window.apiClient && window.apiClient.token) {
                 try {
-                    const result = await window.umlAPI.getDiagram(projectId, diagramId);
+                    const result = await window.apiClient.getDiagram(diagramId);
                     diagramData = result.content;
                 } catch (backendError) {
                     console.warn('Error cargando desde backend, usando versión local:', backendError);
@@ -180,13 +197,13 @@ class UMLPersistence {
 
     // Métodos de sincronización
     async syncPendingChanges() {
-        if (!this.isOnline || !window.umlAPI.isAuthenticated() || this.pendingChanges.length === 0) {
+        if (!this.isOnline || !window.apiClient || !window.apiClient.token || this.pendingChanges.length === 0) {
             return;
         }
         
         try {
             for (const change of this.pendingChanges) {
-                await window.umlAPI.updateDiagram(change.projectId, change.diagramId, {
+                await window.apiClient.updateDiagram(change.diagramId, {
                     content: change.data,
                     lastModified: new Date().toISOString()
                 });

@@ -30,28 +30,51 @@ class APIClient {
     if (this.token && !options.skipAuth) {
       config.headers['Authorization'] = `Bearer ${this.token}`;
     }
+    
+    // Log para depuración
+    console.log(`API Request: ${options.method || 'GET'} ${url}`, {
+      headers: config.headers,
+      body: config.body ? JSON.parse(config.body) : undefined
+    });
 
     try {
       const response = await fetch(url, config);
       
-      // Manejar respuesta
-      const data = await response.json();
+      // Intentar parsear la respuesta como JSON
+      let data;
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        // Si no es JSON, obtener como texto
+        data = { text: await response.text() };
+      }
+      
+      // Log de respuesta
+      console.log(`API Response: ${response.status} ${response.statusText}`, {
+        data: data,
+        url: url,
+        method: options.method || 'GET'
+      });
 
       if (!response.ok) {
         // Intentar renovar token si es 401
         if (response.status === 401 && this.refreshToken && !options.skipRefresh) {
+          console.log('Token expirado, intentando renovar...');
           const refreshed = await this.refreshAccessToken();
           if (refreshed) {
+            console.log('Token renovado exitosamente, reintentando petición...');
             // Reintentar petición original
             return this.request(endpoint, { ...options, skipRefresh: true });
           } else {
             // Token inválido, cerrar sesión
+            console.log('No se pudo renovar el token, cerrando sesión...');
             this.handleAuthError();
             throw new Error('Sesión expirada');
           }
         }
 
-        throw new APIError(data.message || 'Error en la petición', response.status, data);
+        throw new APIError(data.message || data.error || 'Error en la petición', response.status, data);
       }
 
       return data;
@@ -340,6 +363,13 @@ class APIClient {
    */
   async deleteDiagram(diagramId) {
     return this.delete(`/diagrams/${diagramId}`);
+  }
+
+  /**
+   * Actualización rápida de diagrama (para debugging)
+   */
+  async quickUpdateDiagram(diagramId, content) {
+    return this.request('PATCH', `/diagrams/${diagramId}/quick-update`, { content });
   }
 }
 

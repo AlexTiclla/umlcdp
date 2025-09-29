@@ -103,6 +103,148 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/jointjs/3.5.5/joint.min.css"
         />
+
+        <!-- Estilos adicionales para colaboración y guardado -->
+        <style>
+            /* Elementos bloqueados */
+            .element-locked {
+                outline: 2px dashed #ef4444 !important;
+                outline-offset: 2px;
+            }
+
+            .element-locked::after {
+                content: '🔒 ' attr(data-locked-by);
+                position: absolute;
+                top: -25px;
+                left: 0;
+                background: #ef4444;
+                color: white;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 500;
+                white-space: nowrap;
+                z-index: 1000;
+            }
+
+            /* Botón de guardado con estado */
+            #manualSaveBtn.unsaved {
+                background-color: #f59e0b !important;
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.7; }
+            }
+
+            /* Indicador de estado */
+            #saveIndicator {
+                transition: all 0.3s ease;
+                backdrop-filter: blur(4px);
+            }
+
+            /* Cursor remoto */
+            .remote-cursor {
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                pointer-events: none;
+                z-index: 1000;
+                transition: transform 0.1s ease;
+            }
+
+            .remote-cursor::before {
+                content: '👆';
+                font-size: 16px;
+            }
+
+            .remote-cursor::after {
+                content: attr(data-user);
+                position: absolute;
+                top: 20px;
+                left: 0;
+                background: #4f46e5;
+                color: white;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 11px;
+                white-space: nowrap;
+            }
+
+            /* Panel de colaboradores mejorado */
+            .collaborator-online {
+                position: relative;
+            }
+
+            .collaborator-online::before {
+                content: '';
+                position: absolute;
+                right: -2px;
+                top: -2px;
+                width: 8px;
+                height: 8px;
+                background: #10b981;
+                border: 2px solid white;
+                border-radius: 50%;
+            }
+
+            /* Notificaciones mejoradas */
+            .notification-enter {
+                animation: slideInRight 0.3s ease;
+            }
+
+            .notification-exit {
+                animation: slideOutRight 0.3s ease;
+            }
+
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+
+            /* Ayuda contextual */
+            .keyboard-shortcut {
+                position: fixed;
+                bottom: 4px;
+                left: 4px;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                z-index: 30;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .keyboard-shortcut.show {
+                opacity: 1;
+            }
+
+            /* Auto-save status */
+            .auto-saving {
+                opacity: 0.7;
+                transition: opacity 0.3s ease;
+            }
+        </style>
         <!-- AuthManager para autenticación -->
         <script src="js/auth-manager.js"></script>
         <!-- Socket Manager para colaboración en tiempo real -->
@@ -313,6 +455,14 @@
                             Code Generation
                         </h3>
                         <div class="space-y-2">
+                            <button id="saveDiagramBtn" class="tool-btn bg-green-50 hover:bg-green-100 border-green-200">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                                    </svg>
+                                    Save Diagram
+                                </span>
+                            </button>
                             <button id="codeGenButton" class="tool-btn">
                                 <span>Generate Code</span>
                             </button>
@@ -327,6 +477,7 @@
         <script src="js/codeGenerator.js"></script>
         <script src="js/api.js"></script>
         <script src="js/persistence.js"></script>
+        <script src="js/projectHelper.js"></script>
         <script src="js/collaboration.js"></script>
         <script src="js/main.js"></script>
         
@@ -791,6 +942,45 @@
                 // Inicializar la UI inmediatamente
                 updateAuthUI();
             }
+        </script>
+
+        <!-- Indicador de ayuda de atajos de teclado -->
+        <div id="keyboardHelp" class="keyboard-shortcut">
+            <div style="margin-bottom: 4px;"><strong>Atajos:</strong></div>
+            <div>Ctrl+S: Guardar diagrama</div>
+            <div>Ctrl+Shift+S: Guardar como</div>
+        </div>
+
+        <script>
+            // Mostrar ayuda al hacer hover sobre botón de guardar
+            document.addEventListener('DOMContentLoaded', () => {
+                const helpElement = document.getElementById('keyboardHelp');
+
+                // Mostrar ayuda temporalmente al cargar
+                setTimeout(() => {
+                    if (helpElement) {
+                        helpElement.classList.add('show');
+                        setTimeout(() => {
+                            helpElement.classList.remove('show');
+                        }, 5000);
+                    }
+                }, 2000);
+
+                // Mostrar ayuda al hacer hover en botón de guardar
+                document.addEventListener('mouseover', (e) => {
+                    if (e.target.id === 'manualSaveBtn' && helpElement) {
+                        helpElement.classList.add('show');
+                    }
+                });
+
+                document.addEventListener('mouseout', (e) => {
+                    if (e.target.id === 'manualSaveBtn' && helpElement) {
+                        setTimeout(() => {
+                            helpElement.classList.remove('show');
+                        }, 1000);
+                    }
+                });
+            });
         </script>
     </body>
 </html>

@@ -13,7 +13,14 @@ class CollaborationManager {
         this.remoteCursors = new Map();
         this.collaborators = new Map();
         this.isLocalChange = false;
-        
+        this.hasUnsavedChanges = false;
+        this.lastSaveTime = null;
+        this.saveTimeout = null;
+        this.autoSaveInterval = null;
+
+        // Configurar eventos antes de salir
+        this.setupBeforeUnloadHandlers();
+
         this.init();
     }
 
@@ -38,6 +45,9 @@ class CollaborationManager {
             
             this.isInitialized = true;
             console.log('✅ Collaboration Manager inicializado');
+
+        // Iniciar auto-guardado cada 30 segundos
+        this.startAutoSave();
             
         } catch (error) {
             console.error('Error inicializando Collaboration Manager:', error);
@@ -56,6 +66,7 @@ class CollaborationManager {
         try {
             this.currentUser = JSON.parse(userData);
             this.updateAuthenticatedUI();
+        this.updateSaveStatus('ready');
         } catch (error) {
             console.error('Error parsing user data:', error);
             this.showSkipLoginOption();
@@ -278,6 +289,7 @@ class CollaborationManager {
         this.graph.on('add', (cell) => {
             console.log('📊 GRAPH ADD evento:', cell.id, 'isLocalChange:', this.isLocalChange, 'currentUser:', !!this.currentUser);
             if (!this.isLocalChange && this.currentUser) {
+                this.markAsUnsaved();
                 this.handleLocalElementAdd(cell);
             }
         });
@@ -285,6 +297,7 @@ class CollaborationManager {
         this.graph.on('change', (cell, opt) => {
             console.log('📊 GRAPH CHANGE evento:', cell.id, 'isLocalChange:', this.isLocalChange, 'currentUser:', !!this.currentUser);
             if (!this.isLocalChange && this.currentUser) {
+                this.markAsUnsaved();
                 this.handleLocalElementUpdate(cell, opt);
             }
         });
@@ -292,6 +305,7 @@ class CollaborationManager {
         this.graph.on('remove', (cell) => {
             console.log('📊 GRAPH REMOVE evento:', cell.id, 'isLocalChange:', this.isLocalChange, 'currentUser:', !!this.currentUser);
             if (!this.isLocalChange && this.currentUser) {
+                this.markAsUnsaved();
                 this.handleLocalElementDelete(cell);
             }
         });
@@ -317,7 +331,13 @@ class CollaborationManager {
             }
         });
 
+        // Agregar atajos de teclado para guardar
+        this.setupKeyboardShortcuts();
+
         console.log('Eventos del diagrama configurados');
+
+        // Agregar indicador de cambios
+        this.setupSaveIndicator();
     }
 
     handleLocalElementAdd(cell) {
@@ -621,25 +641,76 @@ class CollaborationManager {
         }
     }
 
-    async saveDiagram() {
-        if (!this.currentDiagramId || !this.graph || !this.currentUser) return;
-        
+    async saveDiagram(force = false) {
+        if (!this.currentDiagramId || !this.graph || !this.currentUser) {
+            console.warn('❌ No se puede guardar: falta diagrama, graph o usuario');
+            return { success: false, reason: 'missing_requirements' };
+        }
+
         try {
-            // Debounce saves
+            // Si es forzado, guardar inmediatamente
+            if (force) {
+                return await this.performSave();
+            }
+
+            // Debounce saves para guardado automático
             clearTimeout(this.saveTimeout);
             this.saveTimeout = setTimeout(async () => {
-                const content = JSON.stringify(this.graph.toJSON());
-                const response = await window.api.updateDiagram(this.currentDiagramId, { content });
-                
-                if (response.success) {
-                    console.log('Diagrama guardado automáticamente');
-                } else {
-                    console.error('Error guardando diagrama:', response.message);
-                }
-            }, 2000); // Guardar después de 2 segundos de inactividad
-            
+                await this.performSave();
+            }, 1500); // Reducir tiempo de debounce
+
+            return { success: true, type: 'queued' };
         } catch (error) {
             console.error('Error en saveDiagram:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async performSave() {
+        try {
+            const content = JSON.stringify(this.graph.toJSON());
+
+            // Marcar diagrama como modificado
+            this.hasUnsavedChanges = true;
+
+            // Guardar en el backend usando la ruta temporal de debugging
+            console.log(`🔧 Intentando guardar diagrama ${this.currentDiagramId} con quick-update`);
+
+            let response;
+            try {
+                // Primero intentar con la ruta normal
+                response = await window.api.updateDiagram(this.currentDiagramId, {
+                    content,
+                    lastModified: new Date().toISOString()
+                });
+            } catch (error) {
+                console.warn(`⚠️ Ruta normal falló, usando quick-update:`, error.message);
+
+                // Usar ruta de debugging
+                response = await window.api.quickUpdateDiagram(this.currentDiagramId, content);
+
+                if (response.success) {
+                    console.log(`✅ Quick-update exitoso`);
+                } else {
+                    throw new Error(response.message || 'Error en quick-update');
+                }
+            }
+
+            if (response.success) {
+                this.hasUnsavedChanges = false;
+                this.lastSaveTime = new Date();
+                console.log('✅ Diagrama guardado exitosamente');
+                this.updateSaveStatus('saved');
+                return { success: true, savedAt: this.lastSaveTime };
+            } else {
+                console.error('❌ Error guardando diagrama:', response.message);
+                this.updateSaveStatus('error');
+                return { success: false, error: response.message };
+            }
+        } catch (error) {
+            console.error('❌ Error realizando guardado:', error);
+            this.updateSaveStatus('error');
+            return { success: false, error: error.message };
         }
     }
 
@@ -777,30 +848,333 @@ class CollaborationManager {
 
     showNotification(message, type = 'info', duration = 3000) {
         const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 p-3 rounded-lg shadow-lg z-50 text-white ${
-            type === 'success' ? 'bg-green-500' : 
-            type === 'error' ? 'bg-red-500' : 
-            type === 'warning' ? 'bg-yellow-500' : 
+        notification.className = `fixed top-4 right-4 p-3 rounded-lg shadow-lg z-50 text-white notification-enter ${
+            type === 'success' ? 'bg-green-500' :
+            type === 'error' ? 'bg-red-500' :
+            type === 'warning' ? 'bg-yellow-500' :
             'bg-blue-500'
         }`;
-        notification.textContent = message;
-        
+
+        // Agregar icono según el tipo
+        const icon = type === 'success' ? '✅' :
+                    type === 'error' ? '❌' :
+                    type === 'warning' ? '⚠️' : 'ℹ️';
+
+        notification.innerHTML = `
+            <div class="flex items-center gap-2">
+                <span class="text-lg">${icon}</span>
+                <span>${message}</span>
+            </div>
+        `;
+
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
-            notification.remove();
+            notification.classList.remove('notification-enter');
+            notification.classList.add('notification-exit');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
         }, duration);
     }
 
+    // Nuevos métodos para guardado mejorado
+    setupBeforeUnloadHandlers() {
+        // Confirmar antes de salir si hay cambios sin guardar
+        window.addEventListener('beforeunload', (event) => {
+            if (this.hasUnsavedChanges) {
+                const message = '¿Estás seguro de que quieres salir? Hay cambios sin guardar que se perderán.';
+                event.preventDefault();
+                event.returnValue = message;
+                return message;
+            }
+        });
+
+        // Detectar cambio de página
+        window.addEventListener('pagehide', () => {
+            if (this.hasUnsavedChanges) {
+                // Guardar de emergencia
+                this.saveDiagram(true);
+            }
+        });
+    }
+
+    startAutoSave() {
+        this.stopAutoSave();
+
+        this.autoSaveInterval = setInterval(async () => {
+            if (this.hasUnsavedChanges && this.currentUser && this.currentDiagramId) {
+                console.log('🔄 Auto-guardando diagrama...');
+                await this.saveDiagram();
+            }
+        }, 30000); // Auto-guardar cada 30 segundos
+    }
+
+    stopAutoSave() {
+        if (this.autoSaveInterval) {
+            clearInterval(this.autoSaveInterval);
+            this.autoSaveInterval = null;
+        }
+    }
+
+    setupSaveIndicator() {
+        // Crear indicador de estado de guardado
+        const saveIndicator = document.createElement('div');
+        saveIndicator.id = 'saveIndicator';
+        saveIndicator.className = 'fixed bottom-4 right-4 px-3 py-2 rounded-lg shadow-lg text-sm font-medium z-40';
+        saveIndicator.style.display = 'none';
+        document.body.appendChild(saveIndicator);
+
+        // Agregar botón de guardado manual
+        this.addManualSaveButton();
+    }
+
+    addManualSaveButton() {
+        // Buscar la toolbar existente
+        const toolbar = document.querySelector('.toolbar') || document.querySelector('.fixed.top-0');
+
+        if (toolbar) {
+            const saveButton = document.createElement('button');
+            saveButton.id = 'manualSaveBtn';
+            saveButton.innerHTML = `
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                Guardar
+            `;
+            saveButton.className = 'ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200';
+
+            saveButton.onclick = () => this.handleManualSave();
+
+            // Agregar al final de la toolbar
+            toolbar.appendChild(saveButton);
+        }
+    }
+
+    async handleManualSave() {
+        if (!this.currentUser) {
+            this.showNotification('Inicia sesión para guardar cambios', 'warning');
+            return;
+        }
+
+        if (!this.currentDiagramId) {
+            this.showNotification('No hay diagrama para guardar', 'warning');
+            return;
+        }
+
+        this.updateSaveStatus('saving');
+
+        try {
+            const result = await this.saveDiagram(true);
+
+            if (result.success) {
+                this.showNotification('Diagrama guardado exitosamente', 'success');
+            } else {
+                this.showNotification('Error guardando el diagrama', 'error');
+            }
+        } catch (error) {
+            console.error('Error en guardado manual:', error);
+            this.showNotification('Error guardando el diagrama', 'error');
+        }
+    }
+
+    updateSaveStatus(status) {
+        const indicator = document.getElementById('saveIndicator');
+        const saveButton = document.getElementById('manualSaveBtn');
+
+        if (!indicator) return;
+
+        indicator.style.display = 'block';
+
+        switch (status) {
+            case 'ready':
+                indicator.className = 'fixed bottom-4 right-4 px-3 py-2 rounded-lg shadow-lg text-sm font-medium z-40 bg-gray-500 text-white';
+                indicator.textContent = 'Listo para editar';
+                setTimeout(() => indicator.style.display = 'none', 2000);
+                break;
+
+            case 'unsaved':
+                indicator.className = 'fixed bottom-4 right-4 px-3 py-2 rounded-lg shadow-lg text-sm font-medium z-40 bg-yellow-500 text-white';
+                indicator.textContent = 'Cambios sin guardar';
+                if (saveButton) saveButton.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
+                break;
+
+            case 'saving':
+                indicator.className = 'fixed bottom-4 right-4 px-3 py-2 rounded-lg shadow-lg text-sm font-medium z-40 bg-blue-500 text-white';
+                indicator.textContent = 'Guardando...';
+                if (saveButton) {
+                    saveButton.disabled = true;
+                    saveButton.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+                break;
+
+            case 'saved':
+                indicator.className = 'fixed bottom-4 right-4 px-3 py-2 rounded-lg shadow-lg text-sm font-medium z-40 bg-green-500 text-white';
+                indicator.textContent = `Guardado ${this.formatSaveTime()}`;
+                if (saveButton) {
+                    saveButton.disabled = false;
+                    saveButton.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-yellow-600', 'hover:bg-yellow-700');
+                }
+                setTimeout(() => indicator.style.display = 'none', 3000);
+                break;
+
+            case 'error':
+                indicator.className = 'fixed bottom-4 right-4 px-3 py-2 rounded-lg shadow-lg text-sm font-medium z-40 bg-red-500 text-white';
+                indicator.textContent = 'Error al guardar';
+                if (saveButton) {
+                    saveButton.disabled = false;
+                    saveButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+                setTimeout(() => indicator.style.display = 'none', 5000);
+                break;
+        }
+    }
+
+    formatSaveTime() {
+        if (!this.lastSaveTime) return '';
+
+        const now = new Date();
+        const diff = Math.floor((now - this.lastSaveTime) / 1000);
+
+        if (diff < 60) return 'hace un momento';
+        if (diff < 3600) return `hace ${Math.floor(diff / 60)}m`;
+        return `hace ${Math.floor(diff / 3600)}h`;
+    }
+
+    // Mejorar sincronización al cambiar de proyecto
+    async switchToProject(newProjectId) {
+        try {
+            // Guardar cambios actuales si existen
+            if (this.hasUnsavedChanges && this.currentDiagramId) {
+                console.log('💾 Guardando cambios antes de cambiar de proyecto...');
+                await this.saveDiagram(true);
+            }
+
+            // Salir del diagrama actual
+            if (this.currentDiagramId && window.socketManager) {
+                window.socketManager.leaveDiagram(this.currentDiagramId);
+            }
+
+            // Limpiar estado actual
+            this.currentProjectId = newProjectId;
+            this.currentDiagramId = null;
+            this.hasUnsavedChanges = false;
+            this.lockedElements.clear();
+
+            // Cargar nuevo proyecto
+            if (newProjectId) {
+                localStorage.setItem('currentProjectId', newProjectId);
+                await this.loadCurrentProject();
+            } else {
+                localStorage.removeItem('currentProjectId');
+            }
+
+            console.log('✅ Cambio de proyecto completado');
+        } catch (error) {
+            console.error('Error cambiando de proyecto:', error);
+            this.showNotification('Error cambiando de proyecto', 'error');
+        }
+    }
+
+    markAsUnsaved() {
+        if (!this.hasUnsavedChanges) {
+            this.hasUnsavedChanges = true;
+            this.updateSaveStatus('unsaved');
+        }
+    }
+
+    // Agregar método para verificar estado de guardado
+    hasUnsavedData() {
+        return this.hasUnsavedChanges;
+    }
+
+    // Método para forzar guardado antes de navegación
+    async saveBeforeNavigation() {
+        if (this.hasUnsavedChanges) {
+            const confirmSave = confirm('¿Deseas guardar los cambios antes de salir?');
+            if (confirmSave) {
+                const result = await this.saveDiagram(true);
+                return result.success;
+            }
+        }
+        return true;
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (event) => {
+            // Ctrl+S o Cmd+S para guardar
+            if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+                event.preventDefault();
+                if (this.currentUser && this.currentDiagramId) {
+                    this.handleManualSave();
+                } else {
+                    this.showNotification('Inicia sesión para guardar cambios', 'warning');
+                }
+                return false;
+            }
+
+            // Ctrl+Shift+S para guardar como
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'S') {
+                event.preventDefault();
+                this.handleSaveAs();
+                return false;
+            }
+        });
+    }
+
+    async handleSaveAs() {
+        if (!this.currentUser || !this.currentDiagramId) {
+            this.showNotification('Inicia sesión para guardar cambios', 'warning');
+            return;
+        }
+
+        // Prompt para nuevo nombre
+        const newName = prompt('Nombre del diagrama:', this.currentDiagram?.name || 'Diagrama copia');
+        if (!newName) return;
+
+        try {
+            this.updateSaveStatus('saving');
+
+            // Crear copia del diagrama
+            const content = JSON.stringify(this.graph.toJSON());
+            const response = await window.api.createDiagram(this.currentProjectId, {
+                name: newName,
+                content: content,
+                description: `Copia de ${this.currentDiagram?.name || 'diagrama'}`
+            });
+
+            if (response.success) {
+                this.showNotification(`Diagrama guardado como "${newName}"`, 'success');
+                this.updateSaveStatus('saved');
+            } else {
+                this.showNotification('Error guardando copia del diagrama', 'error');
+                this.updateSaveStatus('error');
+            }
+        } catch (error) {
+            console.error('Error en guardar como:', error);
+            this.showNotification('Error guardando copia del diagrama', 'error');
+            this.updateSaveStatus('error');
+        }
+    }
+
     destroy() {
+        // Detener auto-guardado
+        this.stopAutoSave();
+
+        // Limpiar timeouts
+        if (this.saveTimeout) {
+            clearTimeout(this.saveTimeout);
+        }
+
         if (window.socketManager) {
             window.socketManager.disconnect();
         }
-        
+
         this.lockedElements.clear();
         this.remoteCursors.clear();
         this.collaborators.clear();
-        
+
         console.log('Collaboration Manager destruido');
     }
 }
