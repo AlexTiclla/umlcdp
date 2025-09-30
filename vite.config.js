@@ -25,10 +25,17 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: true,
+    sourcemap: false, // Deshabilitar sourcemaps en producción para mejor rendimiento
+    minify: 'terser',
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html')
+      },
+      output: {
+        manualChunks: {
+          vendor: ['jointjs', 'jquery', 'lodash', 'backbone'],
+          socket: ['socket.io-client']
+        }
       }
     }
   },

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "vite build",
+    "build:prod": "vite build --mode production",
     "build:css": "tailwindcss -i ./css/src/styles.css -o ./css/styles.css",
     "watch": "tailwindcss -i ./css/src/styles.css -o ./css/styles.css --watch",
     "dev": "vite",
