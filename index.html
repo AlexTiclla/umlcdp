@@ -13,6 +13,207 @@
             rel="stylesheet"
         />
         <link rel="stylesheet" href="css/styles.css" />
+        <style>
+            /* Reset y estilos base */
+            * {
+                box-sizing: border-box;
+            }
+            
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: 'Inter', sans-serif;
+            }
+            
+            /* Header de autenticación mejorado */
+            #authHeader {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                z-index: 1000 !important;
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            }
+            
+            /* Contenedor principal ajustado para el header fijo */
+            .main-container {
+                margin-top: 0 !important;
+                height: 100vh !important;
+                display: flex !important;
+                flex-direction: row !important;
+            }
+            
+            .main-container.with-header {
+                margin-top: 60px !important;
+            }
+            
+            /* Asegurar que el lienzo tenga el tamaño correcto */
+            #paper {
+                flex: 1 !important;
+                width: 100% !important;
+                height: 100% !important;
+                position: relative !important;
+                overflow: hidden !important;
+                background: #ffffff !important;
+                border: none !important;
+            }
+            
+            /* Asegurar que el SVG dentro del lienzo funcione correctamente */
+            #paper svg {
+                width: 100% !important;
+                height: 100% !important;
+                display: block !important;
+            }
+            
+            /* Asegurar que los elementos del lienzo sean interactivos */
+            #paper .joint-element {
+                cursor: move !important;
+            }
+            
+            #paper .joint-link {
+                cursor: pointer !important;
+            }
+            
+            /* Asegurar que el drag and drop funcione */
+            #paper .joint-paper {
+                pointer-events: auto !important;
+            }
+            
+            /* Dropdown del menú de usuario mejorado */
+            #userMenuDropdown {
+                position: absolute !important;
+                top: calc(100% + 8px) !important;
+                right: 0 !important;
+                z-index: 1001 !important;
+                min-width: 200px !important;
+                background: white !important;
+                border-radius: 12px !important;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+                border: 1px solid #e5e7eb !important;
+                overflow: hidden !important;
+                transform: translateY(0) !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+            
+            #userMenuDropdown.hidden {
+                display: none !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                transform: translateY(-10px) !important;
+            }
+            
+            /* Botón del menú mejorado */
+            #userMenuBtn {
+                position: relative !important;
+                z-index: 1002 !important;
+                background: rgba(255, 255, 255, 0.1) !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                backdrop-filter: blur(10px) !important;
+                transition: all 0.2s ease !important;
+            }
+            
+            #userMenuBtn:hover {
+                background: rgba(255, 255, 255, 0.2) !important;
+                border-color: rgba(255, 255, 255, 0.3) !important;
+                transform: translateY(-1px) !important;
+            }
+            
+            /* Botón del panel de IA mejorado */
+            #openAiPanel {
+                position: fixed !important;
+                bottom: 24px !important;
+                right: 24px !important;
+                width: 60px !important;
+                height: 60px !important;
+                z-index: 999 !important;
+                background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%) !important;
+                border: none !important;
+                border-radius: 50% !important;
+                box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.4), 0 10px 10px -5px rgba(139, 92, 246, 0.1) !important;
+                cursor: pointer !important;
+                transition: all 0.3s ease !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            #openAiPanel:hover {
+                transform: translateY(-2px) scale(1.05) !important;
+                box-shadow: 0 20px 40px -5px rgba(139, 92, 246, 0.6), 0 10px 20px -5px rgba(139, 92, 246, 0.2) !important;
+            }
+            
+            #openAiPanel:active {
+                transform: translateY(0) scale(0.95) !important;
+            }
+            
+            /* Panel de IA mejorado */
+            #aiPanel {
+                position: fixed !important;
+                top: 0 !important;
+                right: 0 !important;
+                height: 100vh !important;
+                width: 400px !important;
+                z-index: 1000 !important;
+                background: white !important;
+                box-shadow: -10px 0 25px -5px rgba(0, 0, 0, 0.1) !important;
+                transform: translateX(100%) !important;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                border-left: 1px solid #e5e7eb !important;
+            }
+            
+            #aiPanel.open {
+                transform: translateX(0) !important;
+            }
+            
+            /* Estilos para colaboración */
+            .element-locked {
+                border: 2px solid #ef4444 !important;
+                box-shadow: 0 0 10px rgba(239, 68, 68, 0.3) !important;
+            }
+            
+            .element-locked::after {
+                content: attr(data-locked-by);
+                position: absolute;
+                top: -25px;
+                left: 0;
+                background: #ef4444;
+                color: white;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 10px;
+                font-weight: 500;
+                z-index: 1000;
+            }
+            
+            .remote-cursor {
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                background: #6366f1;
+                border-radius: 50% 0 50% 50%;
+                transform: rotate(-45deg);
+                pointer-events: none;
+                z-index: 1000;
+                transition: all 0.1s ease;
+            }
+            
+            .remote-cursor::after {
+                content: attr(data-user-name);
+                position: absolute;
+                top: 20px;
+                left: 10px;
+                background: #6366f1;
+                color: white;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 10px;
+                white-space: nowrap;
+                transform: rotate(45deg);
+            }
+        </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.4.0/backbone-min.js"></script>
@@ -21,37 +222,328 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/jointjs/3.5.5/joint.min.css"
         />
+
+        <!-- Estilos adicionales para colaboración y guardado -->
+        <style>
+            /* Elementos bloqueados */
+            .element-locked {
+                outline: 2px dashed #ef4444 !important;
+                outline-offset: 2px;
+            }
+
+            .element-locked::after {
+                content: '🔒 ' attr(data-locked-by);
+                position: absolute;
+                top: -25px;
+                left: 0;
+                background: #ef4444;
+                color: white;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 500;
+                white-space: nowrap;
+                z-index: 1000;
+            }
+
+            /* Botón de guardado con estado */
+            #manualSaveBtn.unsaved {
+                background-color: #f59e0b !important;
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.7; }
+            }
+
+            /* Indicador de estado */
+            #saveIndicator {
+                transition: all 0.3s ease;
+                backdrop-filter: blur(4px);
+            }
+
+            /* Cursor remoto */
+            .remote-cursor {
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                pointer-events: none;
+                z-index: 1000;
+                transition: transform 0.1s ease;
+            }
+
+            .remote-cursor::before {
+                content: '👆';
+                font-size: 16px;
+            }
+
+            .remote-cursor::after {
+                content: attr(data-user);
+                position: absolute;
+                top: 20px;
+                left: 0;
+                background: #4f46e5;
+                color: white;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 11px;
+                white-space: nowrap;
+            }
+
+            /* Panel de colaboradores mejorado */
+            .collaborator-online {
+                position: relative;
+            }
+
+            .collaborator-online::before {
+                content: '';
+                position: absolute;
+                right: -2px;
+                top: -2px;
+                width: 8px;
+                height: 8px;
+                background: #10b981;
+                border: 2px solid white;
+                border-radius: 50%;
+            }
+
+            /* Notificaciones mejoradas */
+            .notification-enter {
+                animation: slideInRight 0.3s ease;
+            }
+
+            .notification-exit {
+                animation: slideOutRight 0.3s ease;
+            }
+
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+
+            /* Ayuda contextual */
+            .keyboard-shortcut {
+                position: fixed;
+                bottom: 4px;
+                left: 4px;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                z-index: 30;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .keyboard-shortcut.show {
+                opacity: 1;
+            }
+
+            /* Auto-save status */
+            .auto-saving {
+                opacity: 0.7;
+                transition: opacity 0.3s ease;
+            }
+
+            /* Scrollbar personalizado para el chat */
+            #chatMessages::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            #chatMessages::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 3px;
+            }
+
+            #chatMessages::-webkit-scrollbar-thumb {
+                background: #c1c1c1;
+                border-radius: 3px;
+            }
+
+            #chatMessages::-webkit-scrollbar-thumb:hover {
+                background: #a1a1a1;
+            }
+
+            /* Animación para el botón flotante */
+            #openAiPanel {
+                animation: pulse-ai 2s infinite;
+            }
+
+            @keyframes pulse-ai {
+                0%, 100% {
+                    box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.3);
+                }
+                50% {
+                    box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.6);
+                }
+            }
+
+            /* Hover effect para mensajes */
+            .ai-message:hover {
+                background-color: #f8fafc;
+                transition: background-color 0.2s ease;
+            }
+
+            /* Typing indicator */
+            .typing-indicator {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .typing-indicator div {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: #6366f1;
+                animation: typing 1.4s infinite ease-in-out;
+            }
+
+            .typing-indicator div:nth-child(1) { animation-delay: -0.32s; }
+            .typing-indicator div:nth-child(2) { animation-delay: -0.16s; }
+
+            @keyframes typing {
+                0%, 80%, 100% {
+                    transform: scale(0);
+                }
+                40% {
+                    transform: scale(1);
+                }
+            }
+        </style>
+        <!-- AuthManager para autenticación -->
+        <script src="js/auth-manager.js"></script>
+        <!-- Socket Manager para colaboración en tiempo real -->
+        <script src="js/socket-manager.js"></script>
     </head>
     <body class="bg-gray-100">
-        <div class="flex h-screen bg-white">
-            <div
-                class="w-80 bg-white shadow-lg py-8 border-r border-gray-200 flex flex-col"
-            >
+        <!-- Header de Autenticación Mejorado -->
+        <div id="authHeader" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 text-sm shadow-lg" style="display: none;">
+            <div class="flex items-center justify-between max-w-full">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <span class="text-white text-lg font-bold">👤</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span id="userInfoHeader" class="font-semibold text-base">Usuario no autenticado</span>
+                        <span class="text-indigo-100 text-xs">Editor UML</span>
+                    </div>
+                </div>
+                
+                <!-- Menú de Usuario Mejorado -->
+                <div class="relative">
+                    <button id="userMenuBtn" class="flex items-center gap-3 text-white hover:bg-white hover:bg-opacity-20 px-4 py-2 rounded-lg transition-all duration-200 backdrop-blur-sm border border-white border-opacity-20">
+                        <span class="text-sm font-medium">Menú</span>
+                        <span id="menuIcon" class="text-sm transition-transform duration-200">▼</span>
+                    </button>
+                    
+                    <!-- Dropdown del Menú Mejorado -->
+                    <div id="userMenuDropdown" class="absolute right-0 top-full mt-3 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 hidden">
+                        <div class="px-4 py-2 border-b border-gray-100">
+                            <p class="text-xs text-gray-500 font-medium">ACCOUNT</p>
+                        </div>
+                        <button id="headerBackToProjectsBtn" class="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-3 transition-colors">
+                            <span class="text-lg">📁</span>
+                            <span class="font-medium">Mis Proyectos</span>
+                        </button>
+                        <button id="headerViewProfileBtn" class="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-3 transition-colors">
+                            <span class="text-lg">👤</span>
+                            <span class="font-medium">Ver Perfil</span>
+                        </button>
+                        <button id="headerEditProfileBtn" class="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-3 transition-colors">
+                            <span class="text-lg">✏️</span>
+                            <span class="font-medium">Editar Perfil</span>
+                        </button>
+                        <button id="headerSettingsBtn" class="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-3 transition-colors">
+                            <span class="text-lg">⚙️</span>
+                            <span class="font-medium">Configuración</span>
+                        </button>
+                        <div class="px-4 py-2 border-t border-gray-100 mt-2">
+                            <button id="headerLogoutBtn" class="w-full px-4 py-3 text-left text-sm hover:bg-red-50 flex items-center gap-3 transition-colors text-red-600">
+                                <span class="text-lg">🚪</span>
+                                <span class="font-medium">Cerrar Sesión</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor Principal -->
+        <div id="mainContainer" class="main-container">
+            <!-- Panel de Herramientas (Izquierda) -->
+            <div class="w-80 bg-white shadow-lg py-8 border-r border-gray-200 flex flex-col">
                 <div class="flex items-center gap-3 mb-8 px-6">
-                    <svg
-                        class="w-7 h-7 text-indigo-600 flex-shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <rect x="4" y="3" width="7" height="8" rx="1" />
-                        <rect x="13" y="13" width="7" height="8" rx="1" />
-                        <line x1="7.5" y1="11" x2="7.5" y2="13" />
-                        <line x1="7.5" y1="13" x2="16.5" y2="13" />
-                        <line x1="4" y1="6" x2="11" y2="6" />
-                        <line x1="13" y1="16" x2="20" y2="16" />
-                        <circle cx="7.5" cy="13" r="1" fill="currentColor" />
-                    </svg>
-                    <a
-                        href="javascript:void(0)"
-                        onclick="window.location.reload()"
-                        class="text-sm font-bold leading-tight hover:opacity-80 transition-opacity cursor-pointer"
-                    >
+                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <rect x="4" y="3" width="7" height="8" rx="1" />
+                            <rect x="13" y="13" width="7" height="8" rx="1" />
+                            <line x1="7.5" y1="11" x2="7.5" y2="13" />
+                            <line x1="7.5" y1="13" x2="16.5" y2="13" />
+                            <line x1="4" y1="6" x2="11" y2="6" />
+                            <line x1="13" y1="16" x2="20" y2="16" />
+                            <circle cx="7.5" cy="13" r="1" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <a href="javascript:void(0)" onclick="window.location.reload()" class="text-sm font-bold leading-tight hover:opacity-80 transition-opacity cursor-pointer">
                         <span class="text-gray-400">UML</span>
                         <span class="block text-gray-900">CLASS DIAGRAM</span>
                         <span class="text-indigo-600">EDITOR</span>
                     </a>
                 </div>
+                
+                <!-- Sección de Autenticación (solo visible cuando NO está autenticado) -->
+                <div id="authSection" class="px-6 mb-4">
+                <!-- Prompt de Login (solo visible cuando NO está autenticado) -->
+                <div id="loginPrompt" class="bg-gray-50 rounded-lg p-4 text-center flex flex-col items-center gap-2">
+                    <p class="text-sm text-gray-600 mb-2 w-full text-left">Inicia sesión para colaborar</p>
+                    <a href="src/login.html" class="w-full">
+                        <button class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2">
+                            Iniciar Sesión
+                        </button>
+                    </a>
+                    <div class="w-full mt-2">
+                        <button id="skipLoginBtn" class="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-300 transition-colors">
+                            Continuar sin iniciar sesión
+                        </button>
+                        <p class="text-xs text-gray-500 mt-1">Los diagramas no se guardarán</p>
+                    </div>
+                </div>
+
+                <!-- Panel de Colaboradores (solo visible cuando está autenticado) -->
+                <div id="collaboratorsPanel" class="bg-white rounded-lg border border-gray-200 p-4 hidden">
+                    <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        Colaboradores Activos
+                    </h4>
+                    <div id="collaboratorsList" class="space-y-2">
+                        <!-- Los colaboradores se cargarán aquí -->
+                    </div>
+                    <div id="noCollaborators" class="text-xs text-gray-500 text-center py-2">
+                        Solo tú estás trabajando en este proyecto
+                    </div>
+                </div>
+                </div>
+
                 <div class="flex-1 overflow-y-auto px-6">
                     <div class="tool-section elements">
                         <h3>
@@ -146,6 +638,14 @@
                             Code Generation
                         </h3>
                         <div class="space-y-2">
+                            <button id="saveDiagramBtn" class="tool-btn bg-green-50 hover:bg-green-100 border-green-200">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                                    </svg>
+                                    Save Diagram
+                                </span>
+                            </button>
                             <button id="codeGenButton" class="tool-btn">
                                 <span>Generate Code</span>
                             </button>
@@ -153,11 +653,715 @@
                     </div>
                 </div>
             </div>
-            <div id="paper" class="flex-1 bg-white"></div>
+            
+            <!-- Área Principal del Diagrama -->
+            <div id="paper" class="flex-1 bg-white relative"></div>
         </div>
+        
+        <!-- Panel de IA (Derecha) - Mejorado -->
+        <div id="aiPanel" class="w-96 bg-white shadow-2xl border-l border-gray-200 flex flex-col fixed top-0 right-0 h-full z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
+                <!-- Header del Panel de IA -->
+                <div class="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                            <span class="text-white text-lg">🤖</span>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-semibold text-lg">AI Assistant</h3>
+                            <p class="text-purple-100 text-sm">Powered by Gemini Pro</p>
+                        </div>
+                    </div>
+                    <button id="closeAiPanel" class="text-white hover:text-purple-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Selector de Modo -->
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex bg-gray-100 rounded-lg p-1">
+                        <button id="askModeBtn" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 bg-white text-indigo-600 shadow-sm">
+                            💬 Ask Mode
+                        </button>
+                        <button id="agentModeBtn" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-indigo-600">
+                            🤖 Agent Mode
+                        </button>
+                    </div>
+                    <div id="modeDescription" class="mt-3 text-sm text-gray-600">
+                        <p><strong>Ask Mode:</strong> Make questions about your diagram, get suggestions and explanations.</p>
+                    </div>
+                </div>
+
+                <!-- Área de Chat -->
+                <div id="chatArea" class="flex-1 flex flex-col overflow-hidden">
+                    <!-- Mensajes del Chat -->
+                    <div id="chatMessages" class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                        <!-- Mensaje de bienvenida -->
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="text-purple-600 text-sm">🤖</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="bg-gray-100 rounded-lg px-4 py-3">
+                                    <p class="text-sm text-gray-800">¡Hola! Soy tu asistente de IA. Puedo ayudarte a:</p>
+                                    <ul class="mt-2 text-sm text-gray-600 space-y-1">
+                                        <li>• Analizar tu diagrama UML</li>
+                                        <li>• Sugerir mejoras de diseño</li>
+                                        <li>• Crear diagramas automáticamente</li>
+                                        <li>• Responder preguntas sobre UML</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input de Chat -->
+                    <div class="border-t border-gray-200 p-4">
+                        <div class="flex gap-3">
+                            <div class="flex-1 relative">
+                                <textarea 
+                                    id="chatInput" 
+                                    placeholder="Type your message here..."
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                    rows="2"
+                                ></textarea>
+                                <div class="absolute bottom-2 right-2 text-xs text-gray-400" id="inputCounter">0/500</div>
+                            </div>
+                            <button 
+                                id="sendChatBtn" 
+                                class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Indicador de estado -->
+                        <div id="aiStatus" class="mt-2 text-xs text-gray-500 hidden">
+                            <div class="flex items-center gap-2">
+                                <div class="animate-spin w-3 h-3 border border-indigo-600 border-t-transparent rounded-full"></div>
+                                <span>AI is thinking...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón flotante para abrir el panel de IA - Mejorado -->
+        <button id="openAiPanel" class="fixed right-6 bottom-6 w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center z-40 cursor-pointer group">
+            <span class="text-2xl group-hover:scale-110 transition-transform duration-200">🤖</span>
+            <div class="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                <span class="text-xs text-white font-bold">AI</span>
+            </div>
+        </button>
         <script src="js/umlShapes.js"></script>
         <script src="js/relationships.js"></script>
         <script src="js/codeGenerator.js"></script>
+        <script src="js/api.js"></script>
+        <script src="js/persistence.js"></script>
+        <script src="js/projectHelper.js"></script>
+        <script src="js/collaboration.js"></script>
+        <script src="js/ai-assistant.js"></script>
         <script src="js/main.js"></script>
+        
+        <!-- Script de Autenticación Mejorado -->
+        <script>
+            // Inicializar autenticación cuando se carga la página
+            document.addEventListener('DOMContentLoaded', function() {
+                // Esperar un poco para que todos los scripts se carguen
+                setTimeout(() => {
+                    initializeAuthUI();
+                }, 100);
+            });
+
+        function initializeAuthUI() {
+            const loginPrompt = document.getElementById('loginPrompt');
+            const authHeader = document.getElementById('authHeader');
+            const userInfoHeader = document.getElementById('userInfoHeader');
+            const mainContainer = document.getElementById('mainContainer');
+            
+            // Elementos del menú en el header
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userMenuDropdown = document.getElementById('userMenuDropdown');
+            const menuIcon = document.getElementById('menuIcon');
+            const headerViewProfileBtn = document.getElementById('headerViewProfileBtn');
+            const headerEditProfileBtn = document.getElementById('headerEditProfileBtn');
+            const headerSettingsBtn = document.getElementById('headerSettingsBtn');
+            const headerLogoutBtn = document.getElementById('headerLogoutBtn');
+            
+            let isMenuOpen = false;
+
+            // Función para toggle del menú dropdown mejorada
+            function toggleUserMenu() {
+                isMenuOpen = !isMenuOpen;
+                if (isMenuOpen) {
+                    userMenuDropdown.classList.remove('hidden');
+                    menuIcon.textContent = '▲';
+                    menuIcon.style.transform = 'rotate(180deg)';
+                } else {
+                    userMenuDropdown.classList.add('hidden');
+                    menuIcon.textContent = '▼';
+                    menuIcon.style.transform = 'rotate(0deg)';
+                }
+            }
+
+            // Event listener para el botón del menú
+            if (userMenuBtn) {
+                userMenuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleUserMenu();
+                });
+            }
+
+            // Cerrar menú al hacer click fuera
+            document.addEventListener('click', function(e) {
+                if (isMenuOpen && !userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                    toggleUserMenu();
+                }
+            });
+
+            // Debug: Verificar estado de autenticación
+                console.log('🔍 Debug AuthManager:', {
+                    exists: !!window.authManager,
+                    authenticated: window.authManager ? window.authManager.isAuthenticated() : false,
+                    currentUser: window.authManager ? window.authManager.getCurrentUser() : null,
+                    token: localStorage.getItem('authToken'),
+                    userData: localStorage.getItem('userData')
+                });
+                
+                // El menú es siempre visible, no necesitamos lógica de toggle
+
+                // Función para actualizar la UI de autenticación mejorada
+                function updateAuthUI() {
+                    console.log('🔄 Actualizando UI de autenticación...');
+                    
+                    // Verificar directamente en localStorage (método más confiable)
+                    const hasToken = localStorage.getItem('authToken') !== null;
+                    const userDataString = localStorage.getItem('userData');
+                    
+                    console.log('🔍 Estado de autenticación:', {
+                        hasToken,
+                        hasUserData: !!userDataString,
+                        token: localStorage.getItem('authToken') ? 'presente' : 'ausente',
+                        userData: userDataString ? 'presente' : 'ausente'
+                    });
+                    
+                    if (hasToken && userDataString) {
+                        try {
+                            const storedUserData = JSON.parse(userDataString);
+                            console.log('👤 Datos del usuario:', storedUserData);
+                            
+                            // Verificar si tiene firstName O first_name (diferentes formatos)
+                            const firstName = storedUserData.firstName || storedUserData.first_name;
+                            const lastName = storedUserData.lastName || storedUserData.last_name;
+                            
+                            if (storedUserData && firstName) {
+                                // Mostrar información del usuario en el header
+                                userInfoHeader.textContent = `${firstName} ${lastName}`;
+                                
+                                // Mostrar header de usuario autenticado y ocultar login
+                                loginPrompt.style.display = 'none';
+                                authHeader.style.display = 'block';
+                                
+                                // Ajustar el contenedor principal para el header fijo
+                                if (mainContainer) {
+                                    mainContainer.classList.add('with-header');
+                                }
+                                
+                                console.log('🎯 Elementos DOM después de mostrar UI:');
+                                console.log('loginPrompt display:', loginPrompt.style.display);
+                                console.log('authHeader display:', authHeader.style.display);
+                                console.log('userInfoHeader text:', userInfoHeader.textContent);
+                                
+                                console.log('✅ Mostrando UI de usuario autenticado');
+                                
+                                // Sincronizar con AuthManager si está disponible
+                                if (window.authManager && !window.authManager.getCurrentUser()) {
+                                    window.authManager.currentUser = storedUserData;
+                                }
+                                
+                                return; // IMPORTANTE: Salir de la función aquí
+                            } else {
+                                console.log('⚠️ Datos de usuario incompletos:', storedUserData);
+                            }
+                        } catch (error) {
+                            console.error('Error parsing stored user data:', error);
+                            localStorage.removeItem('userData');
+                            localStorage.removeItem('authToken');
+                        }
+                    }
+                    
+                    // Solo llegar aquí si NO hay token O NO hay datos de usuario
+                    console.log('❌ Mostrando UI de usuario no autenticado');
+                    loginPrompt.style.display = 'block';
+                    authHeader.style.display = 'none';
+                    
+                    // Ajustar el contenedor principal sin header
+                    if (mainContainer) {
+                        mainContainer.classList.remove('with-header');
+                    }
+                }
+
+                // Configurar botones del menú en el header
+                if (headerLogoutBtn) {
+                    headerLogoutBtn.addEventListener('click', function() {
+                        if (window.authManager) {
+                            window.authManager.logout();
+                            window.location.reload();
+                        }
+                    });
+                }
+
+                if (headerViewProfileBtn) {
+                    headerViewProfileBtn.addEventListener('click', function() {
+                        window.location.href = 'src/profile.html';
+                    });
+                }
+
+                if (headerEditProfileBtn) {
+                    headerEditProfileBtn.addEventListener('click', function() {
+                        window.location.href = 'src/edit-profile.html';
+                    });
+                }
+
+                if (headerSettingsBtn) {
+                    headerSettingsBtn.addEventListener('click', function() {
+                        window.location.href = 'src/settings.html';
+                    });
+                }
+
+                // Configurar botón de volver a proyectos
+                const headerBackToProjectsBtn = document.getElementById('headerBackToProjectsBtn');
+                if (headerBackToProjectsBtn) {
+                    headerBackToProjectsBtn.addEventListener('click', function() {
+                        localStorage.removeItem('currentProjectId');
+                        window.location.href = 'src/projects.html';
+                    });
+                }
+
+                // Escuchar cambios de autenticación
+                window.addEventListener('authChange', function(e) {
+                    console.log('🔄 Evento de autenticación:', e.detail);
+                    if (e.detail.type === 'logout') {
+                        updateAuthUI();
+                    } else if (e.detail.type === 'login') {
+                        updateAuthUI();
+                    }
+                });
+
+                // Verificar periódicamente si hay cambios en localStorage
+                let lastTokenState = localStorage.getItem('authToken');
+                const checkInterval = setInterval(() => {
+                    const currentTokenState = localStorage.getItem('authToken');
+                    if (currentTokenState !== lastTokenState) {
+                        console.log('🔄 Cambio detectado en autenticación, actualizando UI');
+                        lastTokenState = currentTokenState;
+                        updateAuthUI();
+                    }
+                }, 500);
+
+                // Función de prueba para simular login
+                window.testLogin = function() {
+                    console.log('🧪 Simulando login de prueba...');
+                    
+                    // Crear datos de usuario de prueba
+                    const testUser = {
+                        id: 1,
+                        first_name: 'Juan',
+                        last_name: 'Pérez',
+                        email: 'juan@test.com',
+                        role: 'admin',
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    // Simular token de autenticación
+                    const testToken = 'test_token_' + Date.now();
+                    
+                    // Guardar en localStorage
+                    localStorage.setItem('authToken', testToken);
+                    localStorage.setItem('userData', JSON.stringify(testUser));
+                    
+                    console.log('✅ Login de prueba completado');
+                    console.log('📦 Datos guardados:', {
+                        token: localStorage.getItem('authToken'),
+                        userData: localStorage.getItem('userData')
+                    });
+                    
+                    // Actualizar UI
+                    updateAuthUI();
+                };
+                
+                // Función de prueba para simular logout
+                window.testLogout = function() {
+                    console.log('🧪 Simulando logout...');
+                    
+                    // Limpiar localStorage
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userData');
+                    
+                    console.log('✅ Logout de prueba completado');
+                    
+                    // Actualizar UI
+                    updateAuthUI();
+                };
+                
+                // Función para limpiar completamente y recargar
+                window.clearAllAndReload = function() {
+                    console.log('🧹 Limpiando todo y recargando...');
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.reload();
+                };
+                
+                // Función para verificar el estado actual
+                window.checkAuthState = function() {
+                    console.log('🔍 Estado actual de autenticación:');
+                    console.log('Token:', localStorage.getItem('authToken'));
+                    console.log('User Data:', localStorage.getItem('userData'));
+                    console.log('AuthManager exists:', !!window.authManager);
+                    console.log('AuthManager authenticated:', window.authManager ? window.authManager.isAuthenticated() : false);
+                    console.log('AuthManager current user:', window.authManager ? window.authManager.getCurrentUser() : null);
+                };
+                
+                // Función para forzar actualización de UI
+                window.forceUpdateUI = function() {
+                    console.log('🔄 Forzando actualización de UI...');
+                    updateAuthUI();
+                };
+                
+                // Función para verificar elementos DOM
+                window.checkDOMElements = function() {
+                    console.log('🔍 Verificando elementos DOM:');
+                    const loginPrompt = document.getElementById('loginPrompt');
+                    const authHeader = document.getElementById('authHeader');
+                    const userInfoHeader = document.getElementById('userInfoHeader');
+                    const userMenuBtn = document.getElementById('userMenuBtn');
+                    const userMenuDropdown = document.getElementById('userMenuDropdown');
+                    
+                    console.log('loginPrompt:', loginPrompt);
+                    console.log('authHeader:', authHeader);
+                    console.log('userInfoHeader:', userInfoHeader);
+                    console.log('userMenuBtn:', userMenuBtn);
+                    console.log('userMenuDropdown:', userMenuDropdown);
+                };
+                
+                // Función para probar el menú del usuario
+                window.testUserMenu = function() {
+                    console.log('🧪 Probando menú del usuario...');
+                    const userMenuBtn = document.getElementById('userMenuBtn');
+                    if (userMenuBtn) {
+                        userMenuBtn.click();
+                        console.log('✅ Click en botón del menú ejecutado');
+                    } else {
+                        console.log('❌ Botón del menú no encontrado');
+                    }
+                };
+                
+                // Función para verificar dropdown específicamente
+                window.checkDropdown = function() {
+                    console.log('🔍 Verificando dropdown:');
+                    const profileDropdownBtn = document.getElementById('profileDropdownBtn');
+                    const profileDropdown = document.getElementById('profileDropdown');
+                    const dropdownIcon = document.getElementById('dropdownIcon');
+                    
+                    console.log('profileDropdownBtn:', profileDropdownBtn);
+                    console.log('profileDropdown:', profileDropdown);
+                    console.log('dropdownIcon:', dropdownIcon);
+                    
+                    if (profileDropdown) {
+                        console.log('Dropdown display:', window.getComputedStyle(profileDropdown).display);
+                        console.log('Dropdown visibility:', window.getComputedStyle(profileDropdown).visibility);
+                    }
+                    
+                    if (profileDropdownBtn) {
+                        console.log('Botón clickeable:', !profileDropdownBtn.disabled);
+                        console.log('Botón visible:', window.getComputedStyle(profileDropdownBtn).display !== 'none');
+                    }
+                };
+                
+                // Función para forzar mostrar dropdown
+                window.showDropdown = function() {
+                    console.log('🔄 Forzando mostrar dropdown...');
+                    const profileDropdown = document.getElementById('profileDropdown');
+                    if (profileDropdown) {
+                        profileDropdown.style.display = 'block';
+                        console.log('✅ Dropdown mostrado');
+                    } else {
+                        console.log('❌ Dropdown no encontrado');
+                    }
+                };
+                
+                // Función para probar toggle manualmente
+                window.testToggleDropdown = function() {
+                    console.log('🧪 Probando toggle manual del dropdown...');
+                    toggleDropdown();
+                };
+                
+                // Función para simular click en botón
+                window.simulateDropdownClick = function() {
+                    console.log('🧪 Simulando click en botón dropdown...');
+                    const profileDropdownBtn = document.getElementById('profileDropdownBtn');
+                    if (profileDropdownBtn) {
+                        profileDropdownBtn.click();
+                    } else {
+                        console.log('❌ Botón dropdown no encontrado');
+                    }
+                };
+                
+                // Función para hacer el dropdown más visible
+                window.makeDropdownVisible = function() {
+                    console.log('🔄 Haciendo dropdown más visible...');
+                    const dropdown = document.getElementById('profileDropdown');
+                    const dropdownBtn = document.getElementById('profileDropdownBtn');
+                    
+                    if (dropdown) {
+                        // Corregir estilos CSS
+                        dropdown.style.display = 'block';
+                        dropdown.style.position = 'absolute';
+                        dropdown.style.zIndex = '1000';
+                        dropdown.style.top = '100%';
+                        dropdown.style.left = '0';
+                        dropdown.style.right = '0';
+                        dropdown.style.marginTop = '0.5rem';
+                        dropdown.style.opacity = '1';
+                        dropdown.style.visibility = 'visible';
+                        dropdown.style.border = '2px solid red'; // Temporal para debugging
+                        console.log('✅ Dropdown hecho visible con estilos corregidos');
+                    }
+                    
+                    if (dropdownBtn) {
+                        dropdownBtn.style.border = '2px solid blue'; // Temporal para debugging
+                        dropdownBtn.style.backgroundColor = 'rgba(255, 255, 0, 0.3)'; // Temporal para debugging
+                        console.log('✅ Botón dropdown resaltado');
+                    }
+                };
+                
+                // Función para verificar si el dropdown es clickeable
+                window.testDropdownClick = function() {
+                    console.log('🧪 Probando click en dropdown...');
+                    const dropdownBtn = document.getElementById('profileDropdownBtn');
+                    if (dropdownBtn) {
+                        console.log('Botón encontrado, simulando click...');
+                        dropdownBtn.click();
+                        
+                        // Verificar si el dropdown se abrió
+                        setTimeout(() => {
+                            const dropdown = document.getElementById('profileDropdown');
+                            if (dropdown) {
+                                const display = window.getComputedStyle(dropdown).display;
+                                const position = window.getComputedStyle(dropdown).position;
+                                const zIndex = window.getComputedStyle(dropdown).zIndex;
+                                console.log('Dropdown después del click:', {
+                                    display,
+                                    position,
+                                    zIndex
+                                });
+                                if (display === 'block') {
+                                    console.log('✅ Dropdown se abrió correctamente');
+                                } else {
+                                    console.log('❌ Dropdown no se abrió');
+                                }
+                            }
+                        }, 100);
+                    } else {
+                        console.log('❌ Botón dropdown no encontrado');
+                    }
+                };
+                
+                // Función para mostrar dropdown inmediatamente
+                window.showDropdownNow = function() {
+                    console.log('🔄 Mostrando dropdown inmediatamente...');
+                    const dropdown = document.getElementById('profileDropdown');
+                    if (dropdown) {
+                        dropdown.style.display = 'block';
+                        dropdown.style.position = 'absolute';
+                        dropdown.style.zIndex = '1000';
+                        dropdown.style.top = '100%';
+                        dropdown.style.left = '0';
+                        dropdown.style.right = '0';
+                        dropdown.style.marginTop = '0.5rem';
+                        dropdown.style.backgroundColor = 'white';
+                        dropdown.style.border = '1px solid #ccc';
+                        dropdown.style.borderRadius = '8px';
+                        dropdown.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                        dropdown.style.padding = '8px 0';
+                        dropdown.style.minWidth = '200px';
+                        
+                        console.log('✅ Dropdown mostrado con todos los estilos');
+                        console.log('Dropdown styles:', {
+                            display: dropdown.style.display,
+                            position: dropdown.style.position,
+                            zIndex: dropdown.style.zIndex,
+                            top: dropdown.style.top,
+                            left: dropdown.style.left
+                        });
+                    } else {
+                        console.log('❌ Dropdown no encontrado');
+                    }
+                };
+                
+                // Función para encontrar y resaltar el botón del dropdown
+                window.findDropdownButton = function() {
+                    console.log('🔍 Buscando botón del dropdown...');
+                    const dropdownBtn = document.getElementById('profileDropdownBtn');
+                    if (dropdownBtn) {
+                        // Resaltar el botón
+                        dropdownBtn.style.border = '3px solid red';
+                        dropdownBtn.style.backgroundColor = 'yellow';
+                        dropdownBtn.style.position = 'relative';
+                        dropdownBtn.style.zIndex = '9999';
+                        
+                        // Obtener posición del botón
+                        const rect = dropdownBtn.getBoundingClientRect();
+                        console.log('✅ Botón encontrado en posición:', {
+                            top: rect.top,
+                            left: rect.left,
+                            width: rect.width,
+                            height: rect.height
+                        });
+                        
+                        // Scroll al botón si está fuera de vista
+                        dropdownBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        console.log('🎯 Botón resaltado en amarillo con borde rojo');
+                        console.log('📍 Haz click en el botón amarillo para probar el dropdown');
+                        
+                        return true;
+                    } else {
+                        console.log('❌ Botón dropdown no encontrado');
+                        return false;
+                    }
+                };
+
+                // Inicializar la UI inmediatamente
+                updateAuthUI();
+            }
+        </script>
+
+        <!-- Script para el Panel de IA -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const openAiPanelBtn = document.getElementById('openAiPanel');
+                const aiPanel = document.getElementById('aiPanel');
+                const closeAiPanelBtn = document.getElementById('closeAiPanel');
+
+                // Abrir panel de IA
+                if (openAiPanelBtn) {
+                    openAiPanelBtn.addEventListener('click', function() {
+                        aiPanel.classList.add('open');
+                        console.log('🤖 Panel de IA abierto');
+                    });
+                }
+
+                // Cerrar panel de IA
+                if (closeAiPanelBtn) {
+                    closeAiPanelBtn.addEventListener('click', function() {
+                        aiPanel.classList.remove('open');
+                        console.log('🤖 Panel de IA cerrado');
+                    });
+                }
+
+                // Cerrar panel al hacer click fuera
+                document.addEventListener('click', function(e) {
+                    if (!aiPanel.contains(e.target) && !openAiPanelBtn.contains(e.target) && aiPanel.classList.contains('open')) {
+                        aiPanel.classList.remove('open');
+                    }
+                });
+
+                // Cerrar panel con tecla Escape
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && aiPanel.classList.contains('open')) {
+                        aiPanel.classList.remove('open');
+                    }
+                });
+            });
+        </script>
+
+        <!-- Script de depuración para el lienzo -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Esperar un poco para que todos los scripts se carguen
+                setTimeout(() => {
+                    console.log('🔍 Verificando estado del lienzo...');
+                    
+                    const paperElement = document.getElementById('paper');
+                    console.log('📄 Elemento paper:', paperElement);
+                    
+                    if (window.paper) {
+                        console.log('✅ Paper está disponible:', window.paper);
+                        console.log('📏 Tamaño del paper:', {
+                            width: paperElement.offsetWidth,
+                            height: paperElement.offsetHeight,
+                            clientWidth: paperElement.clientWidth,
+                            clientHeight: paperElement.clientHeight
+                        });
+                        
+                        // Verificar que el paper tenga el tamaño correcto
+                        if (paperElement.offsetWidth === 0 || paperElement.offsetHeight === 0) {
+                            console.warn('⚠️ El paper no tiene tamaño, intentando corregir...');
+                            paperElement.style.width = '100%';
+                            paperElement.style.height = '100%';
+                            
+                            // Recalcular el tamaño del paper
+                            if (window.paper && window.paper.setDimensions) {
+                                window.paper.setDimensions(paperElement.offsetWidth, paperElement.offsetHeight);
+                            }
+                        }
+                    } else {
+                        console.error('❌ Paper no está disponible');
+                    }
+                    
+                    if (window.graph) {
+                        console.log('✅ Graph está disponible:', window.graph);
+                        console.log('📊 Número de elementos en el graph:', window.graph.getCells().length);
+                    } else {
+                        console.error('❌ Graph no está disponible');
+                    }
+                }, 1000);
+            });
+        </script>
+
+        <!-- Indicador de ayuda de atajos de teclado -->
+        <div id="keyboardHelp" class="keyboard-shortcut">
+            <div style="margin-bottom: 4px;"><strong>Atajos:</strong></div>
+            <div>Ctrl+S: Guardar diagrama</div>
+            <div>Ctrl+Shift+S: Guardar como</div>
+        </div>
+
+        <script>
+            // Mostrar ayuda al hacer hover sobre botón de guardar
+            document.addEventListener('DOMContentLoaded', () => {
+                const helpElement = document.getElementById('keyboardHelp');
+
+                // Mostrar ayuda temporalmente al cargar
+                setTimeout(() => {
+                    if (helpElement) {
+                        helpElement.classList.add('show');
+                        setTimeout(() => {
+                            helpElement.classList.remove('show');
+                        }, 5000);
+                    }
+                }, 2000);
+
+                // Mostrar ayuda al hacer hover en botón de guardar
+                document.addEventListener('mouseover', (e) => {
+                    if (e.target.id === 'manualSaveBtn' && helpElement) {
+                        helpElement.classList.add('show');
+                    }
+                });
+
+                document.addEventListener('mouseout', (e) => {
+                    if (e.target.id === 'manualSaveBtn' && helpElement) {
+                        setTimeout(() => {
+                            helpElement.classList.remove('show');
+                        }, 1000);
+                    }
+                });
+            });
+        </script>
     </body>
 </html>
