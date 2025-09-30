@@ -843,7 +843,9 @@ const CodeGenerator = {
                 throw new Error('Error interno: No se pudo obtener el ID del diagrama');
             }
 
-            const response = await fetch(`http://localhost:3001/api/code-generation/diagrams/${diagramId}/generate`, {
+            // Obtener URL base desde configuración centralizada
+            const apiBaseUrl = window.appConfig?.getApiBaseUrl() || 'http://localhost:3001/api';
+            const response = await fetch(`${apiBaseUrl}/code-generation/diagrams/${diagramId}/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -947,8 +949,10 @@ const CodeGenerator = {
             return;
         }
         
+        // Obtener URL base desde configuración centralizada
+        const apiBaseUrl = window.appConfig?.getApiBaseUrl() || 'http://localhost:3001/api';
         // Crear URL con token en la consulta
-        const downloadUrl = `http://localhost:3001/api/code-generation/${generatedCodeId}/download?token=${authToken}`;
+        const downloadUrl = `${apiBaseUrl}/code-generation/${generatedCodeId}/download?token=${authToken}`;
         
         console.log('Iniciando descarga desde URL:', downloadUrl);
         
@@ -979,8 +983,10 @@ const CodeGenerator = {
             return;
         }
         
+        // Obtener URL base desde configuración centralizada
+        const apiBaseUrl = window.appConfig?.getApiBaseUrl() || 'http://localhost:3001/api';
         // Crear URL con token en la consulta
-        const detailsUrl = `http://localhost:3001/api/code-generation/${generatedCodeId}?token=${authToken}`;
+        const detailsUrl = `${apiBaseUrl}/code-generation/${generatedCodeId}?token=${authToken}`;
         
         console.log('Abriendo detalles del proyecto:', detailsUrl);
         

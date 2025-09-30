@@ -5,7 +5,8 @@
 
 class APIClient {
   constructor() {
-    this.baseURL = 'http://localhost:3001/api';
+    // Obtener URL base desde configuración centralizada
+    this.baseURL = window.appConfig?.getApiBaseUrl() || 'http://localhost:3001/api';
     this.token = localStorage.getItem('authToken');
     this.refreshToken = localStorage.getItem('refreshToken');
   }

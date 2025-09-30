@@ -31,7 +31,9 @@ class SocketManager {
         await this.loadSocketIOClient();
       }
 
-      this.socket = io('http://localhost:3001', {
+      // Obtener URL del socket desde configuración centralizada
+      const socketUrl = window.appConfig?.getSocketUrl() || 'http://localhost:3001';
+      this.socket = io(socketUrl, {
         auth: {
           token: token
         },
