@@ -4,9 +4,9 @@
   "description": "UML Class Diagram Editor - Herramienta de Diseño de Base de Datos Colaborativa con IA",
   "main": "index.js",
   "scripts": {
-    "build": "npm run build:css && vite build",
-    "build:prod": "npm run build:css && vite build --config vite.config.prod.js",
-    "build:css": "tailwindcss -i ./css/src/styles.css -o ./css/styles.css --minify",
+    "build": "vite build",
+    "build:prod": "vite build --mode production",
+    "build:css": "tailwindcss -i ./css/src/styles.css -o ./css/styles.css",
     "watch": "tailwindcss -i ./css/src/styles.css -o ./css/styles.css --watch",
     "dev": "vite",
     "dev:legacy": "concurrently \"npm run watch\" \"http-server -p 3000 -o\"",
@@ -14,8 +14,7 @@
     "start": "npm run dev",
     "preview": "vite preview",
     "lint": "eslint js/ --ext .js",
-    "lint:fix": "eslint js/ --ext .js --fix",
-    "vercel-build": "node vercel-build.js"
+    "lint:fix": "eslint js/ --ext .js --fix"
   },
   "keywords": [
     "uml",

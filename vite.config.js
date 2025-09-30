@@ -29,30 +29,34 @@ export default defineConfig({
     minify: 'terser',
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html')
+        main: resolve(__dirname, 'index.html'),
+        login: resolve(__dirname, 'src/login.html'),
+        signup: resolve(__dirname, 'src/signup.html'),
+        profile: resolve(__dirname, 'src/profile.html'),
+        projects: resolve(__dirname, 'src/projects.html'),
+        settings: resolve(__dirname, 'src/settings.html'),
+        'edit-profile': resolve(__dirname, 'src/edit-profile.html'),
+        'demo-users': resolve(__dirname, 'src/demo-users.html')
       },
       output: {
         manualChunks: {
           vendor: ['jointjs', 'jquery', 'lodash', 'backbone'],
           socket: ['socket.io-client']
-        },
-        assetFileNames: (assetInfo) => {
-          const info = assetInfo.name.split('.');
-          const ext = info[info.length - 1];
-          if (/\.(css)$/.test(assetInfo.name)) {
-            return `css/[name]-[hash][extname]`;
-          }
-          if (/\.(png|jpe?g|svg|gif|tiff|bmp|ico)$/i.test(assetInfo.name)) {
-            return `images/[name]-[hash][extname]`;
-          }
-          if (/\.(woff2?|eot|ttf|otf)$/i.test(assetInfo.name)) {
-            return `fonts/[name]-[hash][extname]`;
-          }
-          return `assets/[name]-[hash][extname]`;
-        },
-        chunkFileNames: 'js/[name]-[hash].js',
-        entryFileNames: 'js/[name]-[hash].js'
-      }
+        }
+      },
+      external: [
+        '/assets/auth-manager.js',
+        '/assets/socket-manager.js',
+        '/assets/umlShapes.js',
+        '/assets/relationships.js',
+        '/assets/codeGenerator.js',
+        '/assets/api.js',
+        '/assets/persistence.js',
+        '/assets/projectHelper.js',
+        '/assets/collaboration.js',
+        '/assets/ai-assistant.js',
+        '/assets/main.js'
+      ]
     }
   },
 
@@ -81,6 +85,47 @@ export default defineConfig({
       configResolved(config) {
         // Cargar variables de entorno desde .env
         require('dotenv').config()
+      }
+    },
+    // Plugin para copiar archivos estáticos
+    {
+      name: 'copy-static-assets',
+      generateBundle(options, bundle) {
+        // Copiar archivos JS del directorio js/ al directorio assets/
+        const fs = require('fs');
+        const path = require('path');
+        
+        const jsDir = path.resolve(__dirname, 'js');
+        const cssDir = path.resolve(__dirname, 'css');
+        const assetsDir = path.resolve(__dirname, 'dist/assets');
+        
+        // Crear directorio assets si no existe
+        if (!fs.existsSync(assetsDir)) {
+          fs.mkdirSync(assetsDir, { recursive: true });
+        }
+        
+        // Copiar archivos JS
+        if (fs.existsSync(jsDir)) {
+          const files = fs.readdirSync(jsDir);
+          files.forEach(file => {
+            if (file.endsWith('.js')) {
+              const sourcePath = path.join(jsDir, file);
+              const destPath = path.join(assetsDir, file);
+              fs.copyFileSync(sourcePath, destPath);
+            }
+          });
+        }
+        
+        // Copiar archivos CSS
+        const cssFiles = ['styles.css', 'src/auth-styles.css'];
+        cssFiles.forEach(cssFile => {
+          const sourcePath = path.join(cssDir, cssFile);
+          const fileName = path.basename(cssFile);
+          if (fs.existsSync(sourcePath)) {
+            const destPath = path.join(assetsDir, fileName);
+            fs.copyFileSync(sourcePath, destPath);
+          }
+        });
       }
     }
   ],
