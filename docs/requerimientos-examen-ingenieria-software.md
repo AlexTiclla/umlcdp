@@ -83,12 +83,6 @@ Desarrollar una herramienta de diseño de base de datos colaborativa que permita
 - **RF-043:** Generar documentación automática del diagrama basada en IA
 - **RF-044:** Implementar validación automática de buenas prácticas de diseño UML
 
-#### 4.3 Funcionalidades Avanzadas de IA
-- **RF-045:** Generar código de prueba unitario automáticamente
-- **RF-046:** Sugerir refactorizaciones basadas en análisis del código generado
-- **RF-047:** Implementar detección automática de code smells en el diseño
-- **RF-048:** Generar diagramas de secuencia basados en el diagrama de clases
-
 ### 5. Mejoras al Frontend Existente
 
 #### 5.1 Funcionalidades Colaborativas

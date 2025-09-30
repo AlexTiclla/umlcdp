@@ -191,9 +191,9 @@
   - Botones de acciones rápidas
   - Indicadores de estado de IA
 
-- [ ] **Integración con OpenAI**
+- [ ] **Integración con Gemini Pro**
   - Configurar API key y rate limiting
-  - Implementar cliente para GPT-4
+  - Implementar cliente para Gemini Pro
   - Cache de respuestas frecuentes
   - Manejo de errores y timeouts
 
@@ -209,19 +209,6 @@
   - Análisis automático de patrones
   - Sugerencias de refactorización
   - Generación de documentación
-
-### 5.3 Funcionalidades Avanzadas (Día 53-56)
-- [ ] **Generación de código de prueba**
-  - Tests unitarios automáticos
-  - Tests de integración
-  - Mocks y stubs
-  - Cobertura de código
-
-- [ ] **Análisis de calidad**
-  - Detección de code smells
-  - Métricas de complejidad
-  - Sugerencias de optimización
-  - Diagramas de secuencia
 
 ---
 

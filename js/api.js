@@ -371,6 +371,54 @@ class APIClient {
   async quickUpdateDiagram(diagramId, content) {
     return this.request('PATCH', `/diagrams/${diagramId}/quick-update`, { content });
   }
+
+  // ===== MÉTODOS DE IA =====
+
+  /**
+   * Enviar mensaje al chat de IA
+   * @param {string} message - Mensaje del usuario
+   * @param {string} mode - Modo de IA ('ask' o 'agent')
+   * @param {object} diagramData - Datos del diagrama actual
+   * @param {array} conversationHistory - Historial de conversación
+   */
+  async sendAIMessage(message, mode = 'ask', diagramData = null, conversationHistory = []) {
+    return this.request('/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify({
+        message,
+        mode,
+        diagramData,
+        conversationHistory
+      })
+    });
+  }
+
+  /**
+   * Obtener historial de interacciones con IA
+   * @param {string} diagramId - ID del diagrama (opcional)
+   * @param {number} limit - Límite de resultados
+   */
+  async getAIHistory(diagramId = null, limit = 50) {
+    const params = new URLSearchParams();
+    if (diagramId) params.append('diagramId', diagramId);
+    if (limit) params.append('limit', limit.toString());
+
+    return this.request(`/ai/history?${params.toString()}`);
+  }
+
+  /**
+   * Obtener estadísticas de uso de IA
+   */
+  async getAIStats() {
+    return this.request('/ai/stats');
+  }
+
+  /**
+   * Verificar estado del servicio de IA
+   */
+  async checkAIHealth() {
+    return this.request('/ai/health');
+  }
 }
 
 /**
