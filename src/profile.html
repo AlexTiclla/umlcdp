@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi Perfil - UML CD Editor</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="icon" type="image/png" href="../favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .profile-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        .form-input:disabled {
+            background-color: #f9fafb;
+            color: #6b7280;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-primary {
+            background-color: #6366f1;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #5b21b6;
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        .btn-outline {
+            background-color: transparent;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+        .btn-outline:hover {
+            background-color: #f9fafb;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .readonly-info {
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        .readonly-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: #374151;
+            font-weight: 600;
+        }
+        .readonly-info p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">
+                    U
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900" id="profileName">Mi Perfil</h1>
+                <div class="status-badge status-active">
+                    <span>●</span>
+                    <span id="userStatus">Activo</span>
+                </div>
+            </div>
+
+            <!-- Información de solo lectura -->
+            <div class="readonly-info">
+                <h4>Información de la Cuenta</h4>
+                <p><strong>Email:</strong> <span id="userEmail">-</span></p>
+                <p><strong>Rol:</strong> <span id="userRole">-</span></p>
+                <p><strong>Miembro desde:</strong> <span id="userCreated">-</span></p>
+            </div>
+
+            <!-- Formulario de edición -->
+            <form id="profileForm">
+                <div class="form-group">
+                    <label class="form-label" for="firstName">Nombre</label>
+                    <input 
+                        type="text" 
+                        id="firstName" 
+                        name="firstName" 
+                        class="form-input"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="lastName">Apellido</label>
+                    <input 
+                        type="text" 
+                        id="lastName" 
+                        name="lastName" 
+                        class="form-input"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="username">Nombre de usuario</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        class="form-input"
+                    />
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary" id="saveBtn">
+                        <span>💾</span>
+                        Guardar Cambios
+                    </button>
+                    <button type="button" class="btn btn-outline" id="cancelBtn">
+                        Cancelar
+                    </button>
+                    <a href="../index.html" class="btn btn-secondary">
+                        <span>🏠</span>
+                        Volver al Editor
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/auth-manager.js"></script>
+    <script src="../js/api.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar autenticación
+            if (!window.authManager || !window.authManager.isAuthenticated()) {
+                alert('Debes iniciar sesión para acceder a tu perfil');
+                window.location.href = '../index.html';
+                return;
+            }
+
+            const currentUser = window.authManager.getCurrentUser();
+            if (!currentUser) {
+                alert('Error al cargar la información del usuario');
+                window.location.href = '../index.html';
+                return;
+            }
+
+            // Cargar datos del usuario
+            loadUserProfile(currentUser);
+
+            // Configurar formulario
+            setupFormHandlers();
+        });
+
+        function loadUserProfile(user) {
+            // Actualizar avatar
+            const avatar = document.getElementById('profileAvatar');
+            const initials = `${user.first_name?.charAt(0) || ''}${user.last_name?.charAt(0) || ''}`.toUpperCase();
+            avatar.textContent = initials || 'U';
+
+            // Actualizar información de solo lectura
+            document.getElementById('profileName').textContent = `${user.first_name} ${user.last_name}`;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userRole').textContent = user.role;
+            document.getElementById('userCreated').textContent = new Date(user.created_at).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Llenar formulario
+            document.getElementById('firstName').value = user.first_name || '';
+            document.getElementById('lastName').value = user.last_name || '';
+            document.getElementById('username').value = user.username || '';
+        }
+
+        function setupFormHandlers() {
+            const form = document.getElementById('profileForm');
+            const saveBtn = document.getElementById('saveBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                const updates = {
+                    first_name: formData.get('firstName'),
+                    last_name: formData.get('lastName'),
+                    username: formData.get('username')
+                };
+
+                try {
+                    saveBtn.disabled = true;
+                    saveBtn.textContent = 'Guardando...';
+
+                    // Aquí se haría la llamada al API para actualizar el perfil
+                    // Por ahora, simulamos la actualización
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Actualizar el AuthManager
+                    window.authManager.updateProfile(updates);
+                    
+                    alert('Perfil actualizado correctamente');
+                    
+                    // Recargar los datos
+                    const updatedUser = window.authManager.getCurrentUser();
+                    loadUserProfile(updatedUser);
+
+                } catch (error) {
+                    alert('Error al actualizar el perfil: ' + error.message);
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<span>💾</span> Guardar Cambios';
+                }
+            });
+
+            cancelBtn.addEventListener('click', function() {
+                // Recargar datos originales
+                const currentUser = window.authManager.getCurrentUser();
+                loadUserProfile(currentUser);
+            });
+        }
+    </script>
+</body>
+</html>

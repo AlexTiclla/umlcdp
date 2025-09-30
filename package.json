@@ -1,17 +1,37 @@
 {
-  "name": "duml",
+  "name": "uml-class-diagram-editor",
   "version": "1.0.0",
-  "description": "UML Class Diagram Editor",
+  "description": "UML Class Diagram Editor - Herramienta de Diseño de Base de Datos Colaborativa con IA",
   "main": "index.js",
   "scripts": {
-    "build": "tailwindcss -i ./css/src/styles.css -o ./css/styles.css",
-    "watch": "tailwindcss -i ./css/src/styles.css -o ./css/styles.css --watch"
+    "build": "vite build",
+    "build:prod": "vite build --mode production",
+    "build:css": "tailwindcss -i ./css/src/styles.css -o ./css/styles.css",
+    "watch": "tailwindcss -i ./css/src/styles.css -o ./css/styles.css --watch",
+    "dev": "vite",
+    "dev:legacy": "concurrently \"npm run watch\" \"http-server -p 3000 -o\"",
+    "serve": "http-server -p 3000 -o",
+    "start": "npm run dev",
+    "preview": "vite preview",
+    "lint": "eslint js/ --ext .js",
+    "lint:fix": "eslint js/ --ext .js --fix"
   },
-  "keywords": [],
+  "keywords": [
+    "uml",
+    "class-diagram",
+    "editor",
+    "collaborative",
+    "ai",
+    "spring-boot",
+    "code-generation"
+  ],
   "author": "Hassan AIT MOUSSA",
   "license": "ISC",
   "devDependencies": {
     "autoprefixer": "^10.4.16",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "http-server": "^14.1.1",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.3.6",
     "vite": "^5.0.0"

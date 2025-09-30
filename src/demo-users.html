@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios Demo - UML Class Diagram Editor</title>
+    <link rel="stylesheet" href="../css/src/auth-styles.css">
+    <style>
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .user-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #6366f1;
+        }
+        .user-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .user-info h3 {
+            margin: 0;
+            color: #1f2937;
+            font-size: 1.2em;
+        }
+        .user-info p {
+            margin: 5px 0 0 0;
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        .credentials {
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .credential-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .credential-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .credential-label {
+            font-weight: 500;
+            color: #374151;
+        }
+        .credential-value {
+            font-family: 'Courier New', monospace;
+            background: #1f2937;
+            color: #10b981;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .copy-btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-left: 8px;
+        }
+        .copy-btn:hover {
+            background: #4f46e5;
+        }
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        .role-admin {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .role-user {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #6366f1;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            color: #4f46e5;
+        }
+        .description {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .description h2 {
+            margin: 0 0 10px 0;
+            color: #0369a1;
+        }
+        .description p {
+            margin: 0;
+            color: #0c4a6e;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <a href="login.html" class="back-link">
+            ← Volver al Login
+        </a>
+
+        <div class="description">
+            <h2>👥 Usuarios Demo Disponibles</h2>
+            <p>Estos son los usuarios de prueba que puedes usar para acceder al sistema. Cada usuario tiene diferentes permisos y roles para probar todas las funcionalidades.</p>
+        </div>
+
+        <!-- Usuario Admin -->
+        <div class="user-card">
+            <div class="user-header">
+                <div class="user-avatar">A</div>
+                <div class="user-info">
+                    <h3>Administrador Sistema <span class="role-badge role-admin">ADMIN</span></h3>
+                    <p>Acceso completo al sistema, gestión de usuarios y configuración</p>
+                </div>
+            </div>
+            <div class="credentials">
+                <div class="credential-item">
+                    <span class="credential-label">Email:</span>
+                    <span class="credential-value">admin@umlcdp.com</span>
+                    <button class="copy-btn" onclick="copyToClipboard('admin@umlcdp.com')">Copiar</button>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Contraseña:</span>
+                    <span class="credential-value">Admin123!</span>
+                    <button class="copy-btn" onclick="copyToClipboard('Admin123!')">Copiar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usuario John Doe -->
+        <div class="user-card">
+            <div class="user-header">
+                <div class="user-avatar">J</div>
+                <div class="user-info">
+                    <h3>John Doe <span class="role-badge role-user">USER</span></h3>
+                    <p>Usuario regular - Acme Corporation</p>
+                </div>
+            </div>
+            <div class="credentials">
+                <div class="credential-item">
+                    <span class="credential-label">Email:</span>
+                    <span class="credential-value">john.doe@example.com</span>
+                    <button class="copy-btn" onclick="copyToClipboard('john.doe@example.com')">Copiar</button>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Contraseña:</span>
+                    <span class="credential-value">Password123!</span>
+                    <button class="copy-btn" onclick="copyToClipboard('Password123!')">Copiar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usuario Jane Doe -->
+        <div class="user-card">
+            <div class="user-header">
+                <div class="user-avatar">J</div>
+                <div class="user-info">
+                    <h3>Jane Doe <span class="role-badge role-user">USER</span></h3>
+                    <p>Usuario regular - Tech Solutions Inc</p>
+                </div>
+            </div>
+            <div class="credentials">
+                <div class="credential-item">
+                    <span class="credential-label">Email:</span>
+                    <span class="credential-value">jane.doe@example.com</span>
+                    <button class="copy-btn" onclick="copyToClipboard('jane.doe@example.com')">Copiar</button>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Contraseña:</span>
+                    <span class="credential-value">Password123!</span>
+                    <button class="copy-btn" onclick="copyToClipboard('Password123!')">Copiar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usuario Developer -->
+        <div class="user-card">
+            <div class="user-header">
+                <div class="user-avatar">C</div>
+                <div class="user-info">
+                    <h3>Carlos Rodríguez <span class="role-badge role-user">USER</span></h3>
+                    <p>Desarrollador - DevCorp</p>
+                </div>
+            </div>
+            <div class="credentials">
+                <div class="credential-item">
+                    <span class="credential-label">Email:</span>
+                    <span class="credential-value">dev1@company.com</span>
+                    <button class="copy-btn" onclick="copyToClipboard('dev1@company.com')">Copiar</button>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Contraseña:</span>
+                    <span class="credential-value">Dev123!</span>
+                    <button class="copy-btn" onclick="copyToClipboard('Dev123!')">Copiar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usuario Designer -->
+        <div class="user-card">
+            <div class="user-header">
+                <div class="user-avatar">M</div>
+                <div class="user-info">
+                    <h3>María García <span class="role-badge role-user">USER</span></h3>
+                    <p>Diseñadora - DesignStudio</p>
+                </div>
+            </div>
+            <div class="credentials">
+                <div class="credential-item">
+                    <span class="credential-label">Email:</span>
+                    <span class="credential-value">design1@company.com</span>
+                    <button class="copy-btn" onclick="copyToClipboard('design1@company.com')">Copiar</button>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Contraseña:</span>
+                    <span class="credential-value">Design123!</span>
+                    <button class="copy-btn" onclick="copyToClipboard('Design123!')">Copiar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usuario Team Lead -->
+        <div class="user-card">
+            <div class="user-header">
+                <div class="user-avatar">R</div>
+                <div class="user-info">
+                    <h3>Roberto Martínez <span class="role-badge role-user">USER</span></h3>
+                    <p>Team Lead - TeamWork Ltd</p>
+                </div>
+            </div>
+            <div class="credentials">
+                <div class="credential-item">
+                    <span class="credential-label">Email:</span>
+                    <span class="credential-value">lead@team.com</span>
+                    <button class="copy-btn" onclick="copyToClipboard('lead@team.com')">Copiar</button>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Contraseña:</span>
+                    <span class="credential-value">Lead123!</span>
+                    <button class="copy-btn" onclick="copyToClipboard('Lead123!')">Copiar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="description">
+            <h2>💡 Consejos de Uso</h2>
+            <p>
+                <strong>Admin:</strong> Usa el usuario administrador para probar funcionalidades de gestión del sistema.<br>
+                <strong>Usuarios regulares:</strong> Úsalos para probar la colaboración en tiempo real y la creación de proyectos.<br>
+                <strong>Nota:</strong> Todos los usuarios tienen contraseñas diferentes para mayor seguridad.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Mostrar feedback visual
+                event.target.textContent = '¡Copiado!';
+                event.target.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    event.target.textContent = 'Copiar';
+                    event.target.style.background = '#6366f1';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Error al copiar: ', err);
+                // Fallback para navegadores que no soportan clipboard API
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                event.target.textContent = '¡Copiado!';
+                event.target.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    event.target.textContent = 'Copiar';
+                    event.target.style.background = '#6366f1';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

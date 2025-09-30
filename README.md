@@ -1,124 +1,177 @@
 # UML Class Diagram Editor
 
-A modern, web-based UML Class Diagram editor built with JointJS and Tailwind CSS. Create, edit, and generate code from your UML class diagrams with an intuitive user interface.
+Una herramienta moderna y colaborativa para el diseño de diagramas UML de clases, construida con JavaScript vanilla, JointJS y Tailwind CSS. Incluye generación automática de código Spring Boot e integración con Inteligencia Artificial.
 
-**[Live Demo: Quickly explore and test it online](https://hassantmoussa.com/umlcdp/)**
+## Características
 
-## Features
+- **Editor UML Visual**: Crea y edita diagramas UML de clases con una interfaz intuitiva
+- **Colaboración en Tiempo Real**: Múltiples usuarios pueden trabajar en el mismo diagrama simultáneamente
+- **Generación de Código**: Genera código backend Spring Boot completo desde tus diagramas UML
+- **Integración con IA**: Obtén sugerencias inteligentes y generación automática de código
+- **Autenticación**: Sistema de usuarios con roles (Admin, Editor, Viewer)
+- **UI Moderna**: Construida con Tailwind CSS para un diseño limpio y responsivo
 
-- **Element Creation**
-  - Create Classes, Interfaces, and Abstract Classes
-  - Drag and drop or click-to-place elements
-  - Edit class names, attributes, and methods
+## Tecnologías Utilizadas
 
-- **Relationships**
-  - Association
-  - Inheritance
-  - Implementation
-  - Composition
-  - Aggregation
-  - Edit relationship multiplicities
+- **Frontend**: HTML5, CSS3, JavaScript ES6+
+- **Gráficos**: JointJS para manipulación de diagramas
+- **Estilos**: Tailwind CSS
+- **Herramienta de Build**: Vite
+- **Backend**: Node.js con Express (en desarrollo)
+- **Base de Datos**: Supabase (PostgreSQL)
+- **Tiempo Real**: Socket.io (en desarrollo)
+- **Autenticación**: Sistema mock con localStorage
 
-- **Code Generation**
-  - Generate code in multiple languages:
-    - Java
-    - Python
-    - PHP
-  - Copy generated code to clipboard
-  - Download generated code files
+## Inicio Rápido
 
-- **Navigation**
-  - Pan around the diagram by clicking and dragging
-  - Zoom in/out using Ctrl + Mouse Wheel
-  - Select all elements with Ctrl+A
-  - Save diagram as PNG with Ctrl+S
+### Prerrequisitos
 
-## Getting Started
+- Node.js 18+ 
+- npm o yarn
 
-### Prerequisites
+### Instalación
 
-- Node.js and npm installed on your system
+1. Clona el repositorio:
+```bash
+git clone <repository-url>
+cd uml-class-diagram-editor
+```
 
-### Installation
+2. Instala las dependencias:
+```bash
+npm install
+```
 
-1. Clone the repository:
-   ```bash
-   git clone git@github.com:htmou/umlcdp.git
-   cd umlcdp
-   ```
+3. Construye el CSS:
+```bash
+npm run build:css
+```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+4. Inicia el servidor de desarrollo:
+```bash
+npm run dev
+```
 
-3. Start using the editor by opening `index.html` in your web browser
+5. Abre tu navegador y navega a `http://localhost:3000`
 
-## Usage Guide
+## Uso
 
-### Creating Elements
+### Usuarios Demo
 
-1. Click on the desired element type in the sidebar (Class, Interface, or Abstract Class)
-2. Click on the canvas to place the element, or drag and drop from the sidebar
-3. Double-click an element to edit its properties:
-   - Change the name
-   - Add/edit attributes (for classes)
-   - Add/edit methods
+Para probar la aplicación, puedes usar estos usuarios demo:
 
-### Creating Relationships
+| Email | Contraseña | Rol | Descripción |
+|-------|------------|-----|-------------|
+| `admin@umleditor.com` | `admin123` | Admin | Administrador completo |
+| `editor@umleditor.com` | `editor123` | Editor | Puede crear y editar |
+| `viewer@umleditor.com` | `viewer123` | Viewer | Solo visualización |
+| `demo@umleditor.com` | `demo123` | Editor | Usuario demo |
 
-1. Click on the desired relationship type in the sidebar
-2. Click on the source element
-3. Click on the target element to create the relationship
-4. Double-click the relationship line to edit multiplicities
+### Creando Diagramas
 
-### Code Generation
+1. **Inicia Sesión**: Ve a la página de login y usa uno de los usuarios demo
+2. **Agregar Clases**: Haz clic en la herramienta "Class" y haz clic en el canvas para agregar una nueva clase
+3. **Agregar Interfaces**: Usa la herramienta "Interface" para agregar interfaces
+4. **Agregar Relaciones**: Selecciona una herramienta de relación y conecta dos elementos
+5. **Editar Elementos**: Haz doble clic en cualquier elemento para editar sus propiedades
 
-1. Click the "Generate Code" button
-2. Select your target programming language
-3. Review the generated code
-4. Choose to:
-   - Copy code to clipboard
-   - Download as a file
-   - Go back to select a different language
+### Herramientas Disponibles
 
-### Navigation Tips
+- **Elementos**:
+  - Clase
+  - Interfaz  
+  - Clase Abstracta
 
-- **Pan**: Click and drag on empty space to move around the diagram
-- **Zoom**: Use Ctrl + Mouse Wheel to zoom in/out
-- **Select All**: Press Ctrl+A to select all elements
-- **Delete**: Select element(s) and press Delete key
-- **Save**: Press Ctrl+S to save the diagram as PNG
+- **Relaciones**:
+  - Asociación
+  - Asociación Navegable
+  - Herencia
+  - Implementación
+  - Composición
+  - Agregación
 
-### Element Properties
+### Atajos de Teclado
 
-- **Classes**
-  - Can have attributes and methods
-  - Support public (+), private (-), and protected (#) members
-  - Example attribute: `+name: String`
-  - Example method: `+getName(): String`
+- `Ctrl/Cmd + S`: Guardar diagrama como imagen
+- `Ctrl/Cmd + A`: Seleccionar todos los elementos
+- `Ctrl/Cmd + Z`: Deshacer última acción
+- `Delete`: Eliminar elementos seleccionados
 
-- **Interfaces**
-  - Only contain method signatures
-  - All methods are public
-  - No attributes
+## Estructura del Proyecto
 
-- **Abstract Classes**
-  - Similar to regular classes
-  - Can have abstract methods
-  - Can have regular methods and attributes
+```
+umlcdp/
+├── css/
+│   ├── src/
+│   │   ├── styles.css      # Tailwind CSS fuente
+│   │   └── auth-styles.css # Estilos de autenticación
+│   └── styles.css          # CSS compilado
+├── js/
+│   ├── main.js             # Lógica principal de la aplicación
+│   ├── umlShapes.js        # Definiciones de formas UML
+│   ├── relationships.js    # Definiciones de relaciones
+│   ├── codeGenerator.js    # Lógica de generación de código
+│   ├── persistence.js      # Persistencia de datos
+│   ├── api.js              # Comunicación con API
+│   ├── auth-manager.js     # Gestor de autenticación
+│   └── auth-script.js      # Scripts de autenticación
+├── src/
+│   ├── login.html          # Página de login
+│   ├── signup.html         # Página de registro
+│   └── demo-users.html     # Página de usuarios demo
+├── docs/
+│   ├── requerimientos-examen-ingenieria-software.md
+│   ├── plan-implementacion-detallado.md
+│   └── diagrama-entidad-relacion.md
+├── index.html              # Aplicación principal
+├── package.json
+├── tailwind.config.js
+├── vite.config.js
+└── README.md
+```
 
-### Relationship Types
+## Desarrollo
 
-- **Association**: Basic relationship between classes
-- **Inheritance**: "is-a" relationship (extends)
-- **Implementation**: Class implementing an interface
-- **Composition**: Strong "has-a" relationship
-- **Aggregation**: Weak "has-a" relationship
+### Construir para Producción
 
-## Keyboard Shortcuts
+```bash
+npm run build
+```
 
-- `Ctrl + A`: Select all elements
-- `Ctrl + S`: Save diagram as PNG
-- `Delete`: Remove selected element(s)
-- `Esc`: Cancel current operation/close modal
+### Observar Cambios de CSS
+
+```bash
+npm run watch
+```
+
+### Linting
+
+```bash
+npm run lint
+npm run lint:fix
+```
+
+## Funcionalidades en Desarrollo
+
+- [ ] Colaboración en tiempo real con Socket.io
+- [ ] Generación de código Spring Boot
+- [ ] Integración con Supabase
+- [ ] Panel de Inteligencia Artificial
+- [ ] Sincronización de elementos individuales
+- [ ] Sistema de versionado de diagramas
+
+## Contribuir
+
+1. Fork el repositorio
+2. Crea una rama de feature
+3. Haz tus cambios
+4. Ejecuta tests y linting
+5. Envía un pull request
+
+## Licencia
+
+ISC License
+
+## Autor
+
+Hassan AIT MOUSSA

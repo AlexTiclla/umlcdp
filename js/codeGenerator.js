@@ -91,6 +91,11 @@ const CodeGenerator = {
     },
 
     generateCode: function (graph, language) {
+        // Si es Spring Boot, usar el nuevo generador del backend
+        if (language === 'spring-boot') {
+            return this.generateSpringBootProject(graph);
+        }
+        
         let code = "";
         const elements = graph.getElements();
         const relationships = graph.getLinks();
@@ -631,6 +636,376 @@ const CodeGenerator = {
         code += "}\n";
         return code;
     },
+
+    /**
+     * Genera proyecto completo de Spring Boot
+     */
+    generateSpringBootProject: async function(graph) {
+        try {
+            // Verificar autenticación
+            const authToken = localStorage.getItem('authToken');
+            if (!authToken) {
+                this.showNotification('Debes iniciar sesión para generar código Spring Boot', 'error');
+                throw new Error('Usuario no autenticado');
+            }
+
+            // Asegurar que exista un proyecto y un diagrama
+            try {
+                this.showNotification('Guardando diagrama...', 'info');
+                
+                // Usar el helper para asegurar que existe un proyecto y diagrama
+                const { projectId, diagramId } = await window.projectHelper.ensureProjectAndDiagram(graph);
+                
+                console.log('Proyecto y diagrama asegurados:', { projectId, diagramId });
+                this.showNotification('Diagrama guardado exitosamente', 'success');
+                
+            } catch (saveError) {
+                console.error('Error guardando diagrama:', saveError);
+                this.showNotification('Error guardando el diagrama: ' + saveError.message, 'error');
+                throw new Error('Error guardando el diagrama: ' + saveError.message);
+            }
+
+            // Obtener elementos y relaciones del diagrama
+            const elements = graph.getElements();
+            const relationships = graph.getLinks();
+
+            // Preparar datos del diagrama para enviar al backend
+            const diagramData = {
+                cells: []
+            };
+
+            // Agregar elementos al diagrama
+            elements.forEach(element => {
+                diagramData.cells.push({
+                    id: element.id,
+                    type: 'uml.Class',
+                    name: element.get('name'),
+                    attributes: element.get('attributes') || [],
+                    methods: element.get('methods') || []
+                });
+            });
+
+            // Agregar relaciones al diagrama
+            relationships.forEach(relationship => {
+                diagramData.cells.push({
+                    id: relationship.id,
+                    type: relationship.get('type'),
+                    source: {
+                        id: relationship.getSourceElement().id
+                    },
+                    target: {
+                        id: relationship.getTargetElement().id
+                    },
+                    labels: relationship.labels()
+                });
+            });
+
+            // Configuración del proyecto
+            const projectConfig = {
+                projectName: this.getProjectName(),
+                packageName: this.getPackageName(),
+                databaseConfig: this.getDatabaseConfig()
+            };
+
+            // Mostrar modal de configuración
+            const userConfig = await this.showSpringBootConfigModal(projectConfig);
+            if (!userConfig) {
+                return "Generación cancelada por el usuario";
+            }
+
+            // Llamar al API del backend para generar el código
+            const response = await this.callBackendGenerator(diagramData, userConfig);
+            
+            if (response.success) {
+                // Mostrar modal de descarga
+                this.showDownloadModal(response);
+                return "Proyecto Spring Boot generado exitosamente. ¡Revisa el modal de descarga!";
+            } else {
+                throw new Error(response.error || 'Error desconocido al generar el proyecto');
+            }
+
+        } catch (error) {
+            console.error('Error generando proyecto Spring Boot:', error);
+            return "Error al generar proyecto Spring Boot: " + error.message;
+        }
+    },
+
+    /**
+     * Obtiene el nombre del proyecto actual
+     */
+    getProjectName: function() {
+        // Intentar obtener desde el contexto del proyecto actual
+        return localStorage.getItem('currentProjectName') || 'generated-project';
+    },
+
+    /**
+     * Obtiene el nombre del paquete base
+     */
+    getPackageName: function() {
+        return 'com.example.generated';
+    },
+
+    /**
+     * Obtiene la configuración de base de datos
+     */
+    getDatabaseConfig: function() {
+        return {
+            host: 'aws-1-us-east-2.pooler.supabase.com',
+            port: 5432,
+            database: 'postgres',
+            username: 'postgres.mdiskyofmgaestlwoidk',
+            password: 'postgres'
+        };
+    },
+
+    /**
+     * Muestra modal de configuración para Spring Boot
+     */
+    showSpringBootConfigModal: function(defaultConfig) {
+        return new Promise((resolve) => {
+            // Crear modal HTML
+            const modalHTML = `
+                <div id="springBootConfigModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-lg p-6 w-96 max-w-full">
+                        <h3 class="text-lg font-semibold mb-4">Configuración del Proyecto Spring Boot</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Proyecto</label>
+                                <input id="projectName" type="text" value="${defaultConfig.projectName}" 
+                                       class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Paquete Base</label>
+                                <input id="packageName" type="text" value="${defaultConfig.packageName}" 
+                                       class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            
+                            <div class="bg-gray-50 p-3 rounded-md">
+                                <h4 class="text-sm font-medium text-gray-700 mb-2">Configuración de Base de Datos</h4>
+                                <p class="text-xs text-gray-500">Se usará la configuración de Supabase del proyecto actual</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button id="cancelBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                                Cancelar
+                            </button>
+                            <button id="generateBtn" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
+                                Generar Proyecto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Agregar modal al DOM
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // Event listeners
+            document.getElementById('cancelBtn').addEventListener('click', () => {
+                document.getElementById('springBootConfigModal').remove();
+                resolve(null);
+            });
+
+            document.getElementById('generateBtn').addEventListener('click', () => {
+                const config = {
+                    projectName: document.getElementById('projectName').value.trim(),
+                    packageName: document.getElementById('packageName').value.trim(),
+                    databaseConfig: defaultConfig.databaseConfig
+                };
+
+                if (!config.projectName || !config.packageName) {
+                    alert('Por favor completa todos los campos requeridos');
+                    return;
+                }
+
+                document.getElementById('springBootConfigModal').remove();
+                resolve(config);
+            });
+        });
+    },
+
+    /**
+     * Llama al backend para generar el código
+     */
+    callBackendGenerator: async function(diagramData, config) {
+        try {
+            // Asegurar que exista un proyecto y diagrama antes de continuar
+            const { diagramId } = await window.projectHelper.ensureProjectAndDiagram(window.graph);
+            
+            console.log('ID del diagrama para generar código:', diagramId);
+            
+            // Si aún no hay ID de diagrama, mostrar error (no debería ocurrir)
+            if (!diagramId) {
+                this.showNotification('Error interno: No se pudo obtener el ID del diagrama', 'error');
+                throw new Error('Error interno: No se pudo obtener el ID del diagrama');
+            }
+
+            const response = await fetch(`http://localhost:3001/api/code-generation/diagrams/${diagramId}/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: JSON.stringify({
+                    language: 'spring-boot',
+                    projectName: config.projectName,
+                    packageName: config.packageName,
+                    databaseConfig: config.databaseConfig,
+                    diagramContent: diagramData
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || `Error del servidor: ${response.status}`);
+            }
+
+            if (!data.success) {
+                throw new Error(data.error || 'Error desconocido al generar código');
+            }
+
+            return data;
+
+        } catch (error) {
+            console.error('Error llamando al backend:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Muestra modal de descarga del proyecto generado
+     */
+    showDownloadModal: function(response) {
+        const modalHTML = `
+            <div id="downloadModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg p-6 w-96 max-w-full">
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        
+                        <h3 class="text-lg font-semibold mb-2">¡Proyecto Generado Exitosamente!</h3>
+                        <p class="text-gray-600 mb-4">Tu proyecto Spring Boot está listo para descargar</p>
+                        
+                        <div class="bg-gray-50 p-3 rounded-md mb-4">
+                            <div class="text-sm text-gray-700">
+                                <p><strong>Archivos generados:</strong> ${response.fileCount}</p>
+                                <p><strong>Estructura:</strong> ${response.structure.entities?.length || 0} entidades</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <button id="downloadBtn" class="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
+                                📦 Descargar Proyecto ZIP
+                            </button>
+                            
+                            <button id="viewDetailsBtn" class="w-full px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100">
+                                👁️ Ver Detalles del Proyecto
+                            </button>
+                        </div>
+                        
+                        <button id="closeModalBtn" class="mt-4 text-sm text-gray-500 hover:text-gray-700">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Agregar modal al DOM
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        // Event listeners
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            this.downloadProject(response.generatedCodeId);
+        });
+
+        document.getElementById('viewDetailsBtn').addEventListener('click', () => {
+            this.viewProjectDetails(response.generatedCodeId);
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            document.getElementById('downloadModal').remove();
+        });
+    },
+
+    /**
+     * Descarga el proyecto generado
+     */
+    downloadProject: function(generatedCodeId) {
+        // Obtener token de autenticación
+        const authToken = localStorage.getItem('authToken');
+        
+        if (!authToken) {
+            this.showNotification('No estás autenticado. Por favor, inicia sesión.', 'error');
+            return;
+        }
+        
+        // Crear URL con token en la consulta
+        const downloadUrl = `http://localhost:3001/api/code-generation/${generatedCodeId}/download?token=${authToken}`;
+        
+        console.log('Iniciando descarga desde URL:', downloadUrl);
+        
+        // Crear iframe oculto para descargar sin perder la sesión actual
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = downloadUrl;
+        document.body.appendChild(iframe);
+        
+        // Mostrar notificación
+        this.showNotification('Descarga iniciada', 'success');
+        
+        // Eliminar el iframe después de un tiempo
+        setTimeout(() => {
+            document.body.removeChild(iframe);
+        }, 5000);
+    },
+
+    /**
+     * Muestra detalles del proyecto generado
+     */
+    viewProjectDetails: function(generatedCodeId) {
+        // Obtener token de autenticación
+        const authToken = localStorage.getItem('authToken');
+        
+        if (!authToken) {
+            this.showNotification('No estás autenticado. Por favor, inicia sesión.', 'error');
+            return;
+        }
+        
+        // Crear URL con token en la consulta
+        const detailsUrl = `http://localhost:3001/api/code-generation/${generatedCodeId}?token=${authToken}`;
+        
+        console.log('Abriendo detalles del proyecto:', detailsUrl);
+        
+        // Abrir nueva ventana con detalles del proyecto
+        window.open(detailsUrl, '_blank');
+    },
+
+    /**
+     * Muestra notificación al usuario
+     */
+    showNotification: function(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-md ${
+            type === 'success' ? 'bg-green-500 text-white' : 
+            type === 'error' ? 'bg-red-500 text-white' : 
+            'bg-blue-500 text-white'
+        }`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
 };
 
 // Export the module
