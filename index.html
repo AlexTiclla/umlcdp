@@ -4,15 +4,15 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>UML CD Editor</title>
-        <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-        <link rel="icon" type="image/png" href="favicon.png" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
             rel="stylesheet"
         />
-        <link rel="stylesheet" href="css/styles.css" />
+        <link rel="stylesheet" href="/css/styles.css" />
         <style>
             /* Reset y estilos base */
             * {
@@ -431,9 +431,9 @@
             }
         </style>
         <!-- AuthManager para autenticación -->
-        <script src="js/auth-manager.js"></script>
+        <script src="/js/auth-manager.js"></script>
         <!-- Socket Manager para colaboración en tiempo real -->
-        <script src="js/socket-manager.js"></script>
+        <script src="/js/socket-manager.js"></script>
     </head>
     <body class="bg-gray-100">
         <!-- Header de Autenticación Mejorado -->
@@ -516,7 +516,7 @@
                 <!-- Prompt de Login (solo visible cuando NO está autenticado) -->
                 <div id="loginPrompt" class="bg-gray-50 rounded-lg p-4 text-center flex flex-col items-center gap-2">
                     <p class="text-sm text-gray-600 mb-2 w-full text-left">Inicia sesión para colaborar</p>
-                    <a href="src/login.html" class="w-full">
+                    <a href="/src/login.html" class="w-full">
                         <button class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2">
                             Iniciar Sesión
                         </button>
@@ -758,15 +758,15 @@
                 <span class="text-xs text-white font-bold">AI</span>
             </div>
         </button>
-        <script src="js/umlShapes.js"></script>
-        <script src="js/relationships.js"></script>
-        <script src="js/codeGenerator.js"></script>
-        <script src="js/api.js"></script>
-        <script src="js/persistence.js"></script>
-        <script src="js/projectHelper.js"></script>
-        <script src="js/collaboration.js"></script>
-        <script src="js/ai-assistant.js"></script>
-        <script type="module" src="js/main.js"></script>
+        <script src="/js/umlShapes.js"></script>
+        <script src="/js/relationships.js"></script>
+        <script src="/js/codeGenerator.js"></script>
+        <script src="/js/api.js"></script>
+        <script src="/js/persistence.js"></script>
+        <script src="/js/projectHelper.js"></script>
+        <script src="/js/collaboration.js"></script>
+        <script src="/js/ai-assistant.js"></script>
+        <script type="module" src="/js/main.js"></script>
         
         <!-- Script de Autenticación Mejorado -->
         <script>
@@ -918,19 +918,19 @@
 
                 if (headerViewProfileBtn) {
                     headerViewProfileBtn.addEventListener('click', function() {
-                        window.location.href = 'src/profile.html';
+                        window.location.href = '/src/profile.html';
                     });
                 }
 
                 if (headerEditProfileBtn) {
                     headerEditProfileBtn.addEventListener('click', function() {
-                        window.location.href = 'src/edit-profile.html';
+                        window.location.href = '/src/edit-profile.html';
                     });
                 }
 
                 if (headerSettingsBtn) {
                     headerSettingsBtn.addEventListener('click', function() {
-                        window.location.href = 'src/settings.html';
+                        window.location.href = '/src/settings.html';
                     });
                 }
 
@@ -939,7 +939,7 @@
                 if (headerBackToProjectsBtn) {
                     headerBackToProjectsBtn.addEventListener('click', function() {
                         localStorage.removeItem('currentProjectId');
-                        window.location.href = 'src/projects.html';
+                        window.location.href = '/src/projects.html';
                     });
                 }
 

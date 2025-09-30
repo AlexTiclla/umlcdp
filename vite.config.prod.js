@@ -2,30 +2,14 @@ import { defineConfig } from 'vite'
 import { resolve } from 'path'
 
 export default defineConfig({
-  // Configuración del servidor de desarrollo
-  server: {
-    port: 3000,
-    open: true,
-    cors: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-        secure: false
-      },
-      '/socket.io': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-        ws: true
-      }
-    }
-  },
-
-  // Configuración de build
+  // Configuración específica para producción
+  base: '/',
+  
+  // Configuración de build optimizada para Vercel
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: false, // Deshabilitar sourcemaps en producción para mejor rendimiento
+    sourcemap: false,
     minify: 'terser',
     rollupOptions: {
       input: {
@@ -37,8 +21,6 @@ export default defineConfig({
           socket: ['socket.io-client']
         },
         assetFileNames: (assetInfo) => {
-          const info = assetInfo.name.split('.');
-          const ext = info[info.length - 1];
           if (/\.(css)$/.test(assetInfo.name)) {
             return `css/[name]-[hash][extname]`;
           }
@@ -56,11 +38,10 @@ export default defineConfig({
     }
   },
 
-  // Configuración de variables de entorno
+  // Configuración de variables de entorno para producción
   define: {
-    // Hacer que las variables de entorno estén disponibles en el cliente
-    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL || 'http://localhost:3001/api'),
-    'import.meta.env.VITE_SOCKET_URL': JSON.stringify(process.env.VITE_SOCKET_URL || 'http://localhost:3001'),
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL || 'https://tu-backend-url.vercel.app/api'),
+    'import.meta.env.VITE_SOCKET_URL': JSON.stringify(process.env.VITE_SOCKET_URL || 'https://tu-backend-url.vercel.app'),
     'import.meta.env.VITE_JWT_STORAGE_KEY': JSON.stringify(process.env.VITE_JWT_STORAGE_KEY || 'uml_token'),
     'import.meta.env.VITE_AUTH_REFRESH_THRESHOLD': JSON.stringify(process.env.VITE_AUTH_REFRESH_THRESHOLD || '300000'),
     'import.meta.env.VITE_AUTO_SAVE_INTERVAL': JSON.stringify(process.env.VITE_AUTO_SAVE_INTERVAL || '30000'),
@@ -72,18 +53,6 @@ export default defineConfig({
     'import.meta.env.VITE_DEBUG_MODE': JSON.stringify(process.env.VITE_DEBUG_MODE || 'false'),
     'import.meta.env.VITE_LOG_LEVEL': JSON.stringify(process.env.VITE_LOG_LEVEL || 'info')
   },
-
-  // Configuración de plugins
-  plugins: [
-    // Plugin personalizado para cargar variables de entorno
-    {
-      name: 'env-loader',
-      configResolved(config) {
-        // Cargar variables de entorno desde .env
-        require('dotenv').config()
-      }
-    }
-  ],
 
   // Configuración de optimización
   optimizeDeps: {
